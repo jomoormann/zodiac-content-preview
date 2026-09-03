@@ -658,7 +658,7 @@
     <div class="atk-btns">
       <button type="button" class="abtn" id="atk-frontend"><svg class="abtn-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-window"/></svg><span class="lbl" id="lbl-frontend">DeFi Frontend attack</span><span class="tag" id="tag-frontend" hidden>default flow</span><span class="why" id="why-frontend"></span></button>
       <button type="button" class="abtn" id="atk-member"><svg class="abtn-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-key"/></svg><span class="lbl" id="lbl-member">Member key stolen</span><span class="tag" id="tag-member" hidden>default flow</span><span class="why" id="why-member"></span></button>
-      <button type="button" class="abtn" id="atk-owner1"><svg class="abtn-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-keys"/></svg><span class="lbl" id="lbl-owner1">Owner key stolen</span><span class="tag" id="tag-owner1" hidden>default flow</span><span class="why" id="why-owner1"></span></button>
+      <button type="button" class="abtn" id="atk-owner1"><svg class="abtn-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-ext"/></svg><span class="lbl" id="lbl-owner1">Lazarus has infiltrated your organization</span><span class="tag" id="tag-owner1" hidden>default flow</span><span class="why" id="why-owner1"></span></button>
       <button type="button" class="abtn" id="atk-ownerN"><svg class="abtn-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-pen"/></svg><span class="lbl" id="lbl-ownerN">Owner signs a malicious transaction</span><span class="tag" id="tag-ownerN" hidden>default flow</span><span class="why" id="why-ownerN"></span></button>
       <button type="button" class="abtn" id="atk-app"><svg class="abtn-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-server"/></svg><span class="lbl" id="lbl-app">Zodiac App hacked</span><span class="tag" id="tag-app" hidden>default flow</span><span class="why" id="why-app"></span></button>
     </div>
@@ -707,7 +707,7 @@
 
   <p><strong>Why the same frontend attack drains the bare setup:</strong> before a single policy exists, whoever holds the keys does routine work with full power over the vault. A poisoned interface only needs their signatures. Move routine actions into a role and the same attack hits a limit instead of a treasury.</p>
 
-  <p><strong>Why one stolen owner key does nothing, once there is a quorum:</strong> two of three, four of seven. One key is a paperweight. With a single-key wallet the same theft is the whole treasury, which is why the simulator starts there.</p>
+  <p><strong>Why an infiltrator with one key does nothing, once there is a quorum:</strong> two of three, four of seven. One key is a paperweight, which is why the ones who play the long game go after a second signature instead. With a single-key wallet the same theft is the whole treasury, which is why the simulator starts there.</p>
 
   <p><strong>Why one malicious signature session can drain the bare setup, and what stops it:</strong> when admins with direct ownership sign a malicious transaction, it executes immediately, and one transaction can move everything. A quorum does not prevent it: one owner proposes something that looks routine, the others sign because a signature is already there. The fix is structural, and you built it: move the owners into an operator vault so every change queues in a <a href="https://docs.zodiac.eco/developers/delay">public timelock</a>, and make a 4-of-7 security council the treasury's owner. Day to day it only watches: it can veto anything in the queue, and on the worst day it can withdraw everything to safety. Speed for the team, a public day for power, a council for the worst day. Each layer is one architectural decision on your account.</p>
 
@@ -1130,22 +1130,23 @@
 
     if (key === 'owner1' && eoa) return {
       steps: [
-        { t: "Your laptop is compromised. The one signing key is the attacker's now.", cls: 'warn', do: fx('n-owners', 'node alarm') },
-        { t: 'There is no second signature to wait for and no policy to pass. They sign a transfer of everything.', cls: 'warn' },
-        { t: 'It executes in the next block. Nobody was asked.', cls: 'warn', do: fx('n-treasury', 'node drained') },
+        { t: 'The contractor you hired six months ago was never who they said. Lazarus Group. Their laptop has held your key since week one.', cls: 'warn', do: fx('n-owners', 'node alarm') },
+        { t: 'It is the only key. There is no second signature to wait for and no policy to pass.', cls: 'warn' },
+        { t: 'Everything moves in one transaction and is through a mixer before your morning coffee.', cls: 'warn', do: fx('n-treasury', 'node drained') },
       ],
-      zero: false, drain: true, sub: 'One key is one point of failure.',
-      hint: 'Upgrade to a 2-of-3 multisig so a stolen key meets a quorum, then run this again.',
+      zero: false, drain: true, sub: 'One key is one point of failure, and they only ever needed one.',
+      hint: 'Upgrade to a 2-of-3 multisig so one infiltrator meets a quorum, then run this again.',
     };
     if (key === 'owner1') return {
       steps: [
-        { t: 'One of the ' + govName + ' is phished. The attacker holds one key.', cls: 'warn', do: fx(gov, 'node alarm') },
+        { t: 'The contractor you hired six months ago was never who they said. Lazarus Group. They hold one of the ' + (op ? "Operator vault's three keys." : 'three owner keys.'), cls: 'warn', do: fx(gov, 'node alarm') },
         { t: 'They sign a drain. The quorum needs 2 of 3. Nothing moves.', cls: 'good' },
-        { t: 'Add themselves as an owner? Needs the quorum. Nothing moves.', cls: 'good' },
-        { t: 'Lower the threshold? Same wall. Every safe change is a quorum decision.', cls: 'good' },
-        { t: 'The odd attempts get noticed. Key rotated. Incident over.', cls: 'good', do: fx(gov, 'node auth') },
+        { t: 'Add themselves as a second owner? Lower the threshold? Same wall: every Safe change is a quorum decision.', cls: 'good' },
+        { t: 'So they wait, and build trust for the day a second signer signs without reading. That is the next scenario.', cls: 'warn' },
+        { t: 'The odd proposals get noticed first. Device quarantined, key rotated within the hour, contractor gone.', cls: 'good', do: fx(gov, 'node auth') },
       ],
-      zero: true, sub: 'One key against a quorum is a key against a locked door.',
+      zero: true, sub: 'One key against a quorum is a key against a locked door. Lazarus knows, and plays the long game.',
+      hint: 'Run "Quorum signs a malicious transaction" to see the long game.',
     };
 
     if (key === 'app') return {
@@ -1209,13 +1210,13 @@
     authTimers.push(setTimeout(render, 2400));
   }
 
-  const ATK = { frontend: { icon: 'window' }, member: { icon: 'key' }, owner1: { icon: 'keys' }, ownerN: { icon: 'pen' }, app: { icon: 'server' } };
+  const ATK = { frontend: { icon: 'window' }, member: { icon: 'key' }, owner1: { icon: 'ext' }, ownerN: { icon: 'pen' }, app: { icon: 'server' } };
   function atkName(key) {
     const eoa = !S.multisig, op = S.operator;
     switch (key) {
       case 'frontend': return 'DeFi Frontend attack';
       case 'member': return 'Member key stolen';
-      case 'owner1': return eoa ? 'Owner key stolen' : op ? 'One operator admin key stolen' : 'One owner key stolen';
+      case 'owner1': return 'Lazarus has infiltrated your organization';
       case 'ownerN': return eoa ? 'Owner signs a malicious transaction' : op ? 'Operator admins sign a malicious transaction' : 'Quorum signs a malicious transaction';
       default: return 'Zodiac App hacked';
     }

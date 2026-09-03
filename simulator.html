@@ -554,7 +554,7 @@
     <div class="atk-btns">
       <button type="button" class="abtn" id="atk-frontend"><svg class="abtn-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-window"/></svg><span class="lbl" id="lbl-frontend">DeFi Frontend attack</span><span class="tag" id="tag-frontend" hidden>default flow</span><span class="why" id="why-frontend"></span></button>
       <button type="button" class="abtn" id="atk-member"><svg class="abtn-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-key"/></svg><span class="lbl" id="lbl-member">Member key stolen</span><span class="tag" id="tag-member" hidden>default flow</span><span class="why" id="why-member"></span></button>
-      <button type="button" class="abtn" id="atk-owner1"><svg class="abtn-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-keys"/></svg><span class="lbl" id="lbl-owner1">Owner key stolen</span><span class="tag" id="tag-owner1" hidden>default flow</span><span class="why" id="why-owner1"></span></button>
+      <button type="button" class="abtn" id="atk-owner1"><svg class="abtn-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-ext"/></svg><span class="lbl" id="lbl-owner1">Lazarus has infiltrated your organization</span><span class="tag" id="tag-owner1" hidden>default flow</span><span class="why" id="why-owner1"></span></button>
       <button type="button" class="abtn" id="atk-ownerN"><svg class="abtn-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-pen"/></svg><span class="lbl" id="lbl-ownerN">Owner signs a malicious transaction</span><span class="tag" id="tag-ownerN" hidden>default flow</span><span class="why" id="why-ownerN"></span></button>
       <button type="button" class="abtn" id="atk-app"><svg class="abtn-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-server"/></svg><span class="lbl" id="lbl-app">Zodiac App hacked</span><span class="tag" id="tag-app" hidden>default flow</span><span class="why" id="why-app"></span></button>
     </div>
@@ -603,7 +603,7 @@
     <li>Wiring shown: after the handover the Security Council (4/7) is the treasury's 1/1 owner (exit = owner path, veto = owner-signed setTxNonce on the Delay); the Operator vault acts only as a module through the Delay. Verify the v2/v3 mapping of every tagged parameter. Numbers illustrative.</li>
     <li>Start state: a single key (EOA), no roles; the One key node pulses a slow white glow until it is upgraded, as the cue for the first click; clicking the key or any Zodiac piece upgrades it to the 2/3 multisig first. With one key, key theft and a tricked signature drain everything. Until the Deposits policy exists the DeFi frontend attack drains the vault (or is caught by the operator queue + council veto if those exist), and "Member key stolen" finds nothing to steal. Building Ben, External, Morpho or Lido auto-builds Deposits.</li>
     <li>The Zodiac wordmark (brand SVG paths, no mark) fades into the top-left of the graph when the first Zodiac component is built and leaves on start over.</li>
-    <li>All five vectors stay visible; ones that do not apply are greyed with the reason on the tile ("Member key stolen" needs a policy, "Zodiac App hacked" needs a Zodiac component). Tile names follow the setup (owner / quorum / operator admins). The tile that attacks the current default flow carries a "default flow" tag: the malicious-signature vector for a single key and for a plain multisig (complacency: the second signer signs because a signature is already there), "Member key stolen" once roles exist.</li>
+    <li>"Lazarus has infiltrated your organization" replaces the plain owner-key-stolen vector (SEAL: DPRK IT workers section, DPRK playbook): same one-key mechanics, infiltrator narrative, multisig ending points at the complacency vector. All five vectors stay visible; ones that do not apply are greyed with the reason on the tile ("Member key stolen" needs a policy, "Zodiac App hacked" needs a Zodiac component). Tile names follow the setup (owner / quorum / operator admins). The tile that attacks the current default flow carries a "default flow" tag: the malicious-signature vector for a single key and for a plain multisig (complacency: the second signer signs because a signature is already there), "Member key stolen" once roles exist.</li>
     <li>Sharing: the bar under the cards and "share this run" in the console. X intent text follows the last outcome ($0 / drained / payroll leak), LinkedIn takes the URL only (its card comes from the host page's OG tags), copy link uses the clipboard API. Deep link = page URL + #simulator (also ?simulator), which lands on the cards, not the headline.</li>
   </ul>
 </details>
@@ -981,22 +981,23 @@
 
     if (key === 'owner1' && eoa) return {
       steps: [
-        { t: "Your laptop is compromised. The one signing key is the attacker's now.", cls: 'warn', do: fx('n-owners', 'node alarm') },
-        { t: 'There is no second signature to wait for and no policy to pass. They sign a transfer of everything.', cls: 'warn' },
-        { t: 'It executes in the next block. Nobody was asked.', cls: 'warn', do: fx('n-treasury', 'node drained') },
+        { t: 'The contractor you hired six months ago was never who they said. Lazarus Group. Their laptop has held your key since week one.', cls: 'warn', do: fx('n-owners', 'node alarm') },
+        { t: 'It is the only key. There is no second signature to wait for and no policy to pass.', cls: 'warn' },
+        { t: 'Everything moves in one transaction and is through a mixer before your morning coffee.', cls: 'warn', do: fx('n-treasury', 'node drained') },
       ],
-      zero: false, drain: true, sub: 'One key is one point of failure.',
-      hint: 'Upgrade to a 2-of-3 multisig so a stolen key meets a quorum, then run this again.',
+      zero: false, drain: true, sub: 'One key is one point of failure, and they only ever needed one.',
+      hint: 'Upgrade to a 2-of-3 multisig so one infiltrator meets a quorum, then run this again.',
     };
     if (key === 'owner1') return {
       steps: [
-        { t: 'One of the ' + govName + ' is phished. The attacker holds one key.', cls: 'warn', do: fx(gov, 'node alarm') },
+        { t: 'The contractor you hired six months ago was never who they said. Lazarus Group. They hold one of the ' + (op ? "Operator vault's three keys." : 'three owner keys.'), cls: 'warn', do: fx(gov, 'node alarm') },
         { t: 'They sign a drain. The quorum needs 2 of 3. Nothing moves.', cls: 'good' },
-        { t: 'Add themselves as an owner? Needs the quorum. Nothing moves.', cls: 'good' },
-        { t: 'Lower the threshold? Same wall. Every safe change is a quorum decision.', cls: 'good' },
-        { t: 'The odd attempts get noticed. Key rotated. Incident over.', cls: 'good', do: fx(gov, 'node auth') },
+        { t: 'Add themselves as a second owner? Lower the threshold? Same wall: every Safe change is a quorum decision.', cls: 'good' },
+        { t: 'So they wait, and build trust for the day a second signer signs without reading. That is the next scenario.', cls: 'warn' },
+        { t: 'The odd proposals get noticed first. Device quarantined, key rotated within the hour, contractor gone.', cls: 'good', do: fx(gov, 'node auth') },
       ],
-      zero: true, sub: 'One key against a quorum is a key against a locked door.',
+      zero: true, sub: 'One key against a quorum is a key against a locked door. Lazarus knows, and plays the long game.',
+      hint: 'Run "Quorum signs a malicious transaction" to see the long game.',
     };
 
     if (key === 'app') return {
@@ -1060,13 +1061,13 @@
     authTimers.push(setTimeout(render, 2400));
   }
 
-  const ATK = { frontend: { icon: 'window' }, member: { icon: 'key' }, owner1: { icon: 'keys' }, ownerN: { icon: 'pen' }, app: { icon: 'server' } };
+  const ATK = { frontend: { icon: 'window' }, member: { icon: 'key' }, owner1: { icon: 'ext' }, ownerN: { icon: 'pen' }, app: { icon: 'server' } };
   function atkName(key) {
     const eoa = !S.multisig, op = S.operator;
     switch (key) {
       case 'frontend': return 'DeFi Frontend attack';
       case 'member': return 'Member key stolen';
-      case 'owner1': return eoa ? 'Owner key stolen' : op ? 'One operator admin key stolen' : 'One owner key stolen';
+      case 'owner1': return 'Lazarus has infiltrated your organization';
       case 'ownerN': return eoa ? 'Owner signs a malicious transaction' : op ? 'Operator admins sign a malicious transaction' : 'Quorum signs a malicious transaction';
       default: return 'Zodiac App hacked';
     }
