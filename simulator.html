@@ -90,6 +90,7 @@
   .asset text { font-family: 'JetBrains Mono', Menlo, monospace; font-size: 10.5px; fill: var(--brand-light); }
   .drainedfx .asset text { fill: var(--danger); opacity: 0.7; }
   .drainedfx #t-val, .drainedfx #t-note { fill: var(--danger); }
+  .exposedfx #t-note { fill: var(--sand); }
 
   @keyframes pop { 0% { stroke-width: 4; } 100% { stroke-width: 1.5; } }
   .node.pop .shape { animation: pop 0.5s ease-out; }
@@ -182,10 +183,14 @@
   #atk-result.res.zero .stamp { color: var(--auth); }
   #atk-result.res.partial .stamp { color: var(--sand); }
   #atk-result.res.risk .stamp { color: var(--danger); }
+  #atk-result.res.amber { border: 1px solid var(--sand); background: rgba(206, 164, 145, 0.08); }
+  #atk-result.res.amber .stamp { color: var(--sand); }
   #atk-result .rsub { font-size: 12.5px; color: var(--muted); margin-top: 5px; }
   #atk-hint { margin: 8px 0 0; font-size: 12px; color: var(--ping); font-family: 'JetBrains Mono', Menlo, monospace; }
   @media (prefers-reduced-motion: reduce) { #atk-feed li, #atk-result, .con-status.busy::after { animation: none; } }
   .node.drained .shape { stroke: var(--danger); fill: rgba(255, 92, 92, 0.08); animation: drainpulse 0.9s ease-in-out 3; }
+  .node.exposed .shape { stroke: var(--sand); fill: rgba(206, 164, 145, 0.07); animation: exposedpulse 1.3s ease-in-out 2; }
+  @keyframes exposedpulse { 0%, 100% { filter: drop-shadow(0 0 0 rgba(206, 164, 145, 0)); } 50% { filter: drop-shadow(0 0 12px rgba(206, 164, 145, 0.8)); } }
   @keyframes drainpulse {
     0%, 100% { filter: drop-shadow(0 0 2px rgba(255, 92, 92, 0.2)); }
     50% { filter: drop-shadow(0 0 14px rgba(255, 92, 92, 0.9)); }
@@ -198,7 +203,7 @@
   }
   .leakfx #t-val { fill: var(--sand); }
   .sub.risk { fill: var(--sand); }
-  @media (prefers-reduced-motion: reduce) { .node.pop .shape, .node.ping .shape, .node.drained .shape, .node.safe .shape, .zlogo.on .zword, .node.upg .shape { animation: none; } .node.upg .shape { stroke: #eaf2fb; } .zlogo .zword { transition: none; } }
+  @media (prefers-reduced-motion: reduce) { .node.pop .shape, .node.ping .shape, .node.drained .shape, .node.exposed .shape, .node.safe .shape, .zlogo.on .zword, .node.upg .shape { animation: none; } .node.upg .shape { stroke: #eaf2fb; } .zlogo .zword { transition: none; } }
 
   /* ===== tooltip ===== */
   #tip {
@@ -604,6 +609,7 @@
     <li>Start state: a single key (EOA), no roles; the One key node pulses a slow white glow until it is upgraded, as the cue for the first click; clicking the key or any Zodiac piece upgrades it to the 2/3 multisig first. With one key, key theft and a tricked signature drain everything. Until the Deposits policy exists the DeFi frontend attack drains the vault (or is caught by the operator queue + council veto if those exist), and "Member key stolen" finds nothing to steal. Building Ben, External, Morpho or Lido auto-builds Deposits.</li>
     <li>The Zodiac wordmark (brand SVG paths, no mark) fades into the top-left of the graph when the first Zodiac component is built and leaves on start over.</li>
     <li>"Lazarus has infiltrated your organization" replaces the plain owner-key-stolen vector (SEAL: DPRK IT workers section, DPRK playbook): same one-key mechanics, infiltrator narrative, multisig ending points at the complacency vector. All five vectors stay visible; ones that do not apply are greyed with the reason on the tile ("Member key stolen" needs a policy, "Zodiac App hacked" needs a Zodiac component). Tile names follow the setup (owner / quorum / operator admins). The tile that attacks the current default flow carries a "default flow" tag: the malicious-signature vector for a single key and for a plain multisig (complacency: the second signer signs because a signature is already there), "Member key stolen" once roles exist.</li>
+    <li>Third verdict AT RISK (sand): the vault stays full but is "one careless signature away"; used by the Lazarus run whenever a quorum can execute without a council veto behind it (plain multisig, or operator without council). Only the timelock plus council turns it green.</li>
     <li>Sharing: the bar under the cards and "share this run" in the console. X intent text follows the last outcome ($0 / drained / payroll leak), LinkedIn takes the URL only (its card comes from the host page's OG tags), copy link uses the clipboard API. Deep link = page URL + #simulator (also ?simulator), which lands on the cards, not the headline.</li>
   </ul>
 </details>
@@ -650,7 +656,7 @@
     S = {
       multisig: false, deposits: false, ben: false, ext: false, morpho: false, lido: false, payroll: false, teamwallets: false, rebalance: false, leak: 0,
       operator: false, council: false,
-      log: [], verdict: null, tone: null, drained: false, won: false, busy: false, view: 'list', atk: null, stale: false,
+      log: [], verdict: null, tone: null, drained: false, won: false, busy: false, view: 'list', atk: null, stale: false, exposed: false,
       p: {
         deposits: { amount: 100000, usd: true, vaultOnly: true, expiry: 'none', rate: 'none' },
         payroll: { amount: 30000, rate: 'monthly' },
@@ -671,7 +677,7 @@
 
   function heal() {
     if (S.view === 'run' && !S.busy) S.stale = true;
-    if (S.drained || S.leak) { S.drained = false; S.leak = 0; log('↺ rewound: treasury restored for another try.', ''); }
+    if (S.drained || S.leak || S.exposed) { S.drained = false; S.leak = 0; S.exposed = false; log('↺ rewound: treasury restored for another try.', ''); }
     S.verdict = null; S.tone = null;
   }
 
@@ -771,6 +777,8 @@
         : { k: 'ADD COUNCIL', c: 'guard', t: 'A separate safe (<b>4 of 7</b> signers) that becomes the treasury\'s <b>owner</b>. As owner it can do anything, most importantly <b>exit and withdraw all</b> assets to safety, and <b>veto</b> anything suspicious in the queue.' };
       case 'treasury': return S.drained
         ? { k: 'VAULT · DRAINED', c: 'risk', t: 'The last attack emptied it. Going back, running again or building anything restores it for the next run.' }
+        : S.exposed
+        ? { k: 'VAULT · EXPOSED', c: 'risk', t: 'Still full. The last run ended one careless co-signature away from empty: without a queue and a veto, whatever a quorum signs executes at once.' }
         : { k: 'VAULT', c: 'member', t: 'Holds <b>$45M</b> in ETH and USDC. ' + (!S.multisig ? 'Held by <b>one key</b>: whatever it signs executes.' : S.council && S.operator ? '<b>Owned by the Security Council</b>; the Operator vault acts through the timelock.' : S.council ? 'Owned by the 2/3 owners; the council holds the exit.' : S.operator ? 'Run by the Operator vault through the timelock.' : 'Owned directly by the 2/3 owners.') + ' Assets and policies live here, onchain, as contract state: nothing depends on a vendor server.' };
       default: return null;
     }
@@ -988,17 +996,36 @@
       zero: false, drain: true, sub: 'One key is one point of failure, and they only ever needed one.',
       hint: 'Upgrade to a 2-of-3 multisig so one infiltrator meets a quorum, then run this again.',
     };
-    if (key === 'owner1') return {
-      steps: [
+    if (key === 'owner1') {
+      const intro = [
         { t: 'The contractor you hired six months ago was never who they said. Lazarus Group. They hold one of the ' + (op ? "Operator vault's three keys." : 'three owner keys.'), cls: 'warn', do: fx(gov, 'node alarm') },
         { t: 'They sign a drain. The quorum needs 2 of 3. Nothing moves.', cls: 'good' },
         { t: 'Add themselves as a second owner? Lower the threshold? Same wall: every Safe change is a quorum decision.', cls: 'good' },
-        { t: 'So they wait, and build trust for the day a second signer signs without reading. That is the next scenario.', cls: 'warn' },
-        { t: 'The odd proposals get noticed first. Device quarantined, key rotated within the hour, contractor gone.', cls: 'good', do: fx(gov, 'node auth') },
-      ],
-      zero: true, sub: 'One key against a quorum is a key against a locked door. Lazarus knows, and plays the long game.',
-      hint: 'Run "Quorum signs a malicious transaction" to see the long game.',
-    };
+      ];
+      if (!op) return {
+        steps: intro.concat([
+          { t: 'So they wait. Months later: a routine-looking payment, already signed by a trusted colleague. Signer two opens it at 23:40.', cls: 'warn' },
+          { t: 'Today she reads the calldata and stops. Tomorrow is a coin flip, and nothing in this setup makes it certain.', cls: 'warn', do: fx('n-treasury', 'node exposed') },
+        ]),
+        atrisk: true, sub: 'One key against a quorum is a locked door. One careless co-signature is the key under the mat.',
+        hint: 'Add the Operator vault (timelock) and the Security Council so even a rubber-stamped quorum lands in a public window with a veto. Then run this again.',
+      };
+      if (!cl) return {
+        steps: intro.concat([
+          { t: 'So they wait. Months later: a routine-looking proposal, already signed by a colleague. It would sit ' + dur + 'h in public, but nobody holds a veto.', cls: 'warn', do: fx('n-tl', 'node edit ping') },
+          { t: 'Today the second signer reads the calldata and stops. Tomorrow is a coin flip, and the queue alone changes nothing.', cls: 'warn', do: fx('n-treasury', 'node exposed') },
+        ]),
+        atrisk: true, sub: 'A window nobody can act on is just a delay.',
+        hint: 'Add the Security Council to hold the veto, then run this again.',
+      };
+      return {
+        steps: intro.concat([
+          { t: 'So they wait for a careless co-signature. When it comes, the transaction sits ' + dur + 'h in public and the council reads it.', cls: '', do: fx('n-tl', 'node edit ping') },
+          { t: 'One VETO. Device quarantined, key rotated within the hour, contractor gone.', cls: 'good', do: fx('n-council', 'node guard vflash') },
+        ]),
+        zero: true, sub: 'One key against a quorum is a locked door. The council makes sure it stays one.',
+      };
+    }
 
     if (key === 'app') return {
       steps: [
@@ -1093,7 +1120,7 @@
     if (S.busy) return;
     if (!vectorAvailable(key)) return;
     clearAtk(); clearAuth(); hideTip();
-    S.drained = false; S.leak = 0; S.stale = false;
+    S.drained = false; S.leak = 0; S.stale = false; S.exposed = false;
     S.view = 'run'; S.atk = key;
     el('atk-feed').innerHTML = '';
     el('atk-result').setAttribute('class', 'hide');
@@ -1113,10 +1140,11 @@
       S.busy = false;
       if (sc.drain) S.drained = true;
       if (sc.partial) S.leak = sc.amount;
+      if (sc.atrisk) S.exposed = true;
       if (sc.win) S.won = true;
       render();
-      const cls = sc.zero ? 'zero' : sc.partial ? 'partial' : 'risk';
-      const stamp = sc.zero ? 'HACKER GOT · $0' : sc.partial ? 'HACKER GOT · $' + fmt(sc.amount) : 'EVERYTHING AT RISK · $45,000,000';
+      const cls = sc.zero ? 'zero' : sc.partial ? 'partial' : sc.atrisk ? 'amber' : 'risk';
+      const stamp = sc.zero ? 'HACKER GOT · $0' : sc.partial ? 'HACKER GOT · $' + fmt(sc.amount) : sc.atrisk ? 'AT RISK · one careless signature away' : 'EVERYTHING AT RISK · $45,000,000';
       el('atk-result').setAttribute('class', 'res ' + cls);
       el('atk-result').innerHTML = '<div class="stamp">' + stamp + '</div><div class="rsub">' + sc.sub + '</div>';
       el('atk-hint').textContent = sc.hint || '';
@@ -1136,6 +1164,7 @@
   function shareText() {
     const done = S.view === 'run' && !S.busy && S.atk;
     if (done && S.drained) return 'I built a $45M treasury in the Zodiac Simulator and one malicious signature drained it. Think you can do better?';
+    if (done && S.exposed) return 'My $45M treasury survived an infiltrator with one key in the Zodiac Simulator. It is one careless signature away from not surviving. Build yours:';
     if (done && S.leak) return 'A stolen key walked off with $' + fmt(S.leak) + ' of my payroll allowance in the Zodiac Simulator. Build yours and try to break it:';
     if (done) return 'The hacker got $0 out of my $45,000,000 treasury. Build yours in the Zodiac Simulator and try to break it:';
     return 'Build a $45M treasury, then try to break it. The Zodiac Simulator:';
@@ -1264,9 +1293,9 @@
 
     // treasury
     el('t-val').textContent = S.drained ? '$0 left' : S.leak ? '$' + fmt(45000000 - S.leak) : '$45,000,000';
-    el('n-treasury').setAttribute('class', 'node' + (S.drained ? ' drained' : S.won ? ' won' : ''));
-    el('t-note').textContent = S.drained ? '$45,000,000 drained' : S.leak ? '$' + fmt(S.leak) + ' leaked' : '';
-    el('sim-panel').setAttribute('class', 'sim' + (S.drained ? ' drainedfx' : S.leak ? ' leakfx' : ''));
+    el('n-treasury').setAttribute('class', 'node' + (S.drained ? ' drained' : S.exposed ? ' exposed' : S.won ? ' won' : ''));
+    el('t-note').textContent = S.drained ? '$45,000,000 drained' : S.leak ? '$' + fmt(S.leak) + ' leaked' : S.exposed ? 'one careless signature away' : '';
+    el('sim-panel').setAttribute('class', 'sim' + (S.drained ? ' drainedfx' : S.leak ? ' leakfx' : S.exposed ? ' exposedfx' : ''));
     const inRun = S.view === 'run';
     el('con-status').textContent = S.busy ? 'running' : inRun ? 'done' : 'ready';
     el('con-status').setAttribute('class', 'con-status' + (S.busy ? ' busy' : ''));
