@@ -175,6 +175,9 @@
   #atk-result.res.zero { border: 1px solid var(--auth); background: rgba(82, 217, 139, 0.08); }
   #atk-result.res.partial { border: 1px solid var(--sand); background: rgba(206, 164, 145, 0.08); }
   #atk-result.res.risk { border: 1px solid var(--danger); background: rgba(255, 92, 92, 0.08); }
+  #atk-result.res.stale { border: 1px dashed #35578f; background: rgba(70, 156, 237, 0.06); }
+  #atk-result.res.stale .stamp { color: var(--brand-light); }
+  #atk-feed.stale li { opacity: 0.45; }
   #atk-result .stamp { font-family: 'JetBrains Mono', Menlo, monospace; font-size: 17px; letter-spacing: 0.04em; }
   #atk-result.res.zero .stamp { color: var(--auth); }
   #atk-result.res.partial .stamp { color: var(--sand); }
@@ -647,7 +650,7 @@
     S = {
       multisig: false, deposits: false, ben: false, ext: false, morpho: false, lido: false, payroll: false, teamwallets: false, rebalance: false, leak: 0,
       operator: false, council: false,
-      log: [], verdict: null, tone: null, drained: false, won: false, busy: false, view: 'list', atk: null,
+      log: [], verdict: null, tone: null, drained: false, won: false, busy: false, view: 'list', atk: null, stale: false,
       p: {
         deposits: { amount: 100000, usd: true, vaultOnly: true, expiry: 'none', rate: 'none' },
         payroll: { amount: 30000, rate: 'monthly' },
@@ -667,6 +670,7 @@
   function log(text, cls) { S.log.push({ text, cls: cls || '' }); }
 
   function heal() {
+    if (S.view === 'run' && !S.busy) S.stale = true;
     if (S.drained || S.leak) { S.drained = false; S.leak = 0; log('↺ rewound: treasury restored for another try.', ''); }
     S.verdict = null; S.tone = null;
   }
@@ -766,7 +770,7 @@
           : { k: 'GUARDIAN · 4/7', c: 'guard', t: 'Holds the <b>exit</b>: it can withdraw all assets to safety at any time. Seat the Operator vault and the council takes the treasury\'s <b>owner seat</b>, with a queue to veto.' })
         : { k: 'ADD COUNCIL', c: 'guard', t: 'A separate safe (<b>4 of 7</b> signers) that becomes the treasury\'s <b>owner</b>. As owner it can do anything, most importantly <b>exit and withdraw all</b> assets to safety, and <b>veto</b> anything suspicious in the queue.' };
       case 'treasury': return S.drained
-        ? { k: 'VAULT · DRAINED', c: 'risk', t: 'The stress test emptied it. Click anything to rewind and keep building.' }
+        ? { k: 'VAULT · DRAINED', c: 'risk', t: 'The last attack emptied it. Going back, running again or building anything restores it for the next run.' }
         : { k: 'VAULT', c: 'member', t: 'Holds <b>$45M</b> in ETH and USDC. ' + (!S.multisig ? 'Held by <b>one key</b>: whatever it signs executes.' : S.council && S.operator ? '<b>Owned by the Security Council</b>; the Operator vault acts through the timelock.' : S.council ? 'Owned by the 2/3 owners; the council holds the exit.' : S.operator ? 'Run by the Operator vault through the timelock.' : 'Owned directly by the 2/3 owners.') + ' Assets and policies live here, onchain, as contract state: nothing depends on a vendor server.' };
       default: return null;
     }
@@ -1088,7 +1092,7 @@
     if (S.busy) return;
     if (!vectorAvailable(key)) return;
     clearAtk(); clearAuth(); hideTip();
-    S.drained = false; S.leak = 0;
+    S.drained = false; S.leak = 0; S.stale = false;
     S.view = 'run'; S.atk = key;
     el('atk-feed').innerHTML = '';
     el('atk-result').setAttribute('class', 'hide');
@@ -1260,7 +1264,7 @@
     // treasury
     el('t-val').textContent = S.drained ? '$0 · drained' : S.leak ? '$' + fmt(45000000 - S.leak) : '$45,000,000';
     el('n-treasury').setAttribute('class', 'node' + (S.drained ? ' drained' : S.won ? ' won' : ''));
-    el('t-note').textContent = S.drained ? 'click anything to rewind' : S.leak ? 'payroll allowance leaked · click anything to rewind' : '';
+    el('t-note').textContent = S.drained ? 'emptied in this run' : S.leak ? 'one allowance leaked in this run' : '';
     el('sim-panel').setAttribute('class', 'sim' + (S.drained ? ' drainedfx' : S.leak ? ' leakfx' : ''));
     const inRun = S.view === 'run';
     el('con-status').textContent = S.busy ? 'running' : inRun ? 'done' : 'ready';
@@ -1270,6 +1274,12 @@
     el('con-eyebrow').hidden = inRun;
     el('con-back').hidden = !inRun;
     el('atk-again').hidden = !inRun || S.busy;
+    if (S.stale) {
+      el('atk-result').setAttribute('class', 'res stale');
+      el('atk-result').innerHTML = '<div class="stamp">SETUP CHANGED</div><div class="rsub">The verdict above no longer applies. Run again to see the outcome for what you built.</div>';
+      el('atk-hint').textContent = '';
+    }
+    el('atk-feed').setAttribute('class', S.stale ? 'stale' : '');
     el('atk-share').hidden = !inRun || S.busy;
     if (S.atk) {
       el('con-title-t').textContent = atkName(S.atk);
