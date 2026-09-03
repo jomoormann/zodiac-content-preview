@@ -200,13 +200,12 @@
   #zsim .con-back { font-family: 'JetBrains Mono', Menlo, monospace; font-size: 11.5px; color: var(--brand-light); background: none; border: 0; padding: 0; cursor: pointer; }
   #zsim .con-back:hover { text-decoration: underline; text-underline-offset: 2px; }
   #zsim .con-intro { font-size: 12.5px; color: var(--muted); margin: 0 0 12px; line-height: 1.45; }
-  #zsim .flow { display: flex; gap: 10px; align-items: baseline; background: #0d1c3e; border: 1px solid #22375f; border-radius: 10px; padding: 8px 11px; margin: 0 0 12px; font-size: 12px; color: var(--muted); line-height: 1.4; transition: border-color 0.3s ease, box-shadow 0.3s ease; }
-  #zsim .flow.flash { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(70, 156, 237, 0.18); }
-  #zsim .flow-k { font-family: 'JetBrains Mono', Menlo, monospace; font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--brand-light); white-space: nowrap; }
   #zsim .abtn .lbl { flex: 1 1 auto; }
   #zsim .abtn .why { font-size: 9.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--dim); white-space: nowrap; }
   #zsim .abtn .tag { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--auth); border: 1px solid #2e6b4f; border-radius: 999px; padding: 1px 7px; white-space: nowrap; }
   #zsim .node.upg { cursor: pointer; }
+  #zsim .node.upg .shape { animation: keyping 2.6s ease-in-out infinite; }
+  @keyframes keyping { 0%, 100% { stroke: #35578f; filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0)); } 50% { stroke: #eaf2fb; filter: drop-shadow(0 0 11px rgba(255, 255, 255, 0.8)); } }
   #zsim .node.upg:hover .shape, #zsim .node.upg:focus-visible .shape { stroke: var(--brand); }
   #zsim .node.upg:focus-visible { outline: none; }
   #zsim #r-ownquorum { stroke: #6292cf; }
@@ -277,7 +276,7 @@
   }
   #zsim .leakfx #t-val { fill: var(--sand); }
   #zsim .sub.risk { fill: var(--sand); }
-  @media (prefers-reduced-motion: reduce) { #zsim .node.pop .shape, #zsim .node.ping .shape, #zsim .node.drained .shape, #zsim .node.safe .shape, #zsim .zlogo.on .zword { animation: none; } .zlogo .zword { transition: none; } }
+  @media (prefers-reduced-motion: reduce) { #zsim .node.pop .shape, #zsim .node.ping .shape, #zsim .node.drained .shape, #zsim .node.safe .shape, #zsim .zlogo.on .zword, #zsim .node.upg .shape { animation: none; } .node.upg .shape { stroke: #eaf2fb; } .zlogo .zword { transition: none; } }
 
   /* ===== tooltip ===== */
   #zsim #tip {
@@ -652,7 +651,6 @@
     <span class="con-status" id="con-status">ready</span>
   </div>
   <div id="atk-list">
-    <div class="flow" id="flow"><span class="flow-k">Default flow</span><span id="flow-t"></span></div>
     <p class="con-intro">Pick an attack. Greyed vectors need a piece you have not built yet.</p>
     <div class="atk-btns">
       <button type="button" class="abtn" id="atk-frontend"><svg class="abtn-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-window"/></svg><span class="lbl" id="lbl-frontend">DeFi Frontend attack</span><span class="tag" id="tag-frontend" hidden>default flow</span><span class="why" id="why-frontend"></span></button>
@@ -1220,15 +1218,7 @@
   }
   const hasMember = () => !!(S.deposits || S.payroll);
   const vectorAvailable = (key) => key === 'member' ? hasMember() : key === 'app' ? zodiacSetup() : true;
-  function flowText() {
-    if (!S.multisig) return 'One key signs everything. Every action is a full-power transaction.';
-    const roles = S.deposits || S.payroll || S.rebalance;
-    if (!roles) return S.operator ? 'Owners act through the operator vault: every action waits ' + S.p.timelock.dur + 'h in public.' : '2 of 3 owners sign every action, routine or not. Full power, twice.';
-    if (!S.operator) return 'Members act inside policies, instantly. Owners sign the rules, instantly.';
-    return 'Members act inside policies, instantly. Rule changes wait ' + S.p.timelock.dur + 'h in public' + (S.council ? ', and the council can veto.' : '.');
-  }
   const defaultVector = () => (S.multisig && hasMember()) ? 'member' : 'ownerN';
-  let lastFlow = null;
 
   function backToList() {
     clearAtk(); clearAuth(); hideTip();
@@ -1444,12 +1434,6 @@
       el('why-' + k2).textContent = ok ? '' : why[k2];
       el('tag-' + k2).hidden = k2 !== dv || !ok;
     });
-    const ft = flowText();
-    if (ft !== el('flow-t').textContent) {
-      el('flow-t').textContent = ft;
-      if (lastFlow !== null) { el('flow').setAttribute('class', 'flow flash'); setTimeout(() => el('flow').setAttribute('class', 'flow'), 1300); }
-    }
-    lastFlow = ft;
     el('zlogo').setAttribute('class', 'zlogo' + (zodiacSetup() ? ' on' : ''));
     refreshShare();
 

@@ -119,13 +119,12 @@
   .con-back { font-family: 'JetBrains Mono', Menlo, monospace; font-size: 11.5px; color: var(--brand-light); background: none; border: 0; padding: 0; cursor: pointer; }
   .con-back:hover { text-decoration: underline; text-underline-offset: 2px; }
   .con-intro { font-size: 12.5px; color: var(--muted); margin: 0 0 12px; line-height: 1.45; }
-  .flow { display: flex; gap: 10px; align-items: baseline; background: #0d1c3e; border: 1px solid #22375f; border-radius: 10px; padding: 8px 11px; margin: 0 0 12px; font-size: 12px; color: var(--muted); line-height: 1.4; transition: border-color 0.3s ease, box-shadow 0.3s ease; }
-  .flow.flash { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(70, 156, 237, 0.18); }
-  .flow-k { font-family: 'JetBrains Mono', Menlo, monospace; font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--brand-light); white-space: nowrap; }
   .abtn .lbl { flex: 1 1 auto; }
   .abtn .why { font-size: 9.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--dim); white-space: nowrap; }
   .abtn .tag { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--auth); border: 1px solid #2e6b4f; border-radius: 999px; padding: 1px 7px; white-space: nowrap; }
   .node.upg { cursor: pointer; }
+  .node.upg .shape { animation: keyping 2.6s ease-in-out infinite; }
+  @keyframes keyping { 0%, 100% { stroke: #35578f; filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0)); } 50% { stroke: #eaf2fb; filter: drop-shadow(0 0 11px rgba(255, 255, 255, 0.8)); } }
   .node.upg:hover .shape, .node.upg:focus-visible .shape { stroke: var(--brand); }
   .node.upg:focus-visible { outline: none; }
   #r-ownquorum { stroke: #6292cf; }
@@ -196,7 +195,7 @@
   }
   .leakfx #t-val { fill: var(--sand); }
   .sub.risk { fill: var(--sand); }
-  @media (prefers-reduced-motion: reduce) { .node.pop .shape, .node.ping .shape, .node.drained .shape, .node.safe .shape, .zlogo.on .zword { animation: none; } .zlogo .zword { transition: none; } }
+  @media (prefers-reduced-motion: reduce) { .node.pop .shape, .node.ping .shape, .node.drained .shape, .node.safe .shape, .zlogo.on .zword, .node.upg .shape { animation: none; } .node.upg .shape { stroke: #eaf2fb; } .zlogo .zword { transition: none; } }
 
   /* ===== tooltip ===== */
   #tip {
@@ -548,7 +547,6 @@
     <span class="con-status" id="con-status">ready</span>
   </div>
   <div id="atk-list">
-    <div class="flow" id="flow"><span class="flow-k">Default flow</span><span id="flow-t"></span></div>
     <p class="con-intro">Pick an attack. Greyed vectors need a piece you have not built yet.</p>
     <div class="atk-btns">
       <button type="button" class="abtn" id="atk-frontend"><svg class="abtn-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-window"/></svg><span class="lbl" id="lbl-frontend">DeFi Frontend attack</span><span class="tag" id="tag-frontend" hidden>default flow</span><span class="why" id="why-frontend"></span></button>
@@ -600,9 +598,9 @@
     <li>Editor modals carry v2 / v3 / delay-mod tags; saving is instant pre-handover and queued after. Every add or signed edit briefly glows the entity that authorized it: owners before the handover, Operator vault after.</li>
     <li>Attack simulator: five scenarios below the graph, each choreographed on the graph itself (alarms, timelock pings, violet veto flash). Only "Vault admins sign malicious transaction" can drain, and only until the Operator vault (timelock) + Security Council are built; "Member key stolen" leaks one payroll allowance if Payroll is built without the Team wallets whitelist. The hint line says what is missing. Each scenario now runs 3 to 6 beats with its own rhythm (escalating attempts, retries, a realization); per-beat delay is one number in runAttack.</li>
     <li>Wiring shown: after the handover the Security Council (4/7) is the treasury's 1/1 owner (exit = owner path, veto = owner-signed setTxNonce on the Delay); the Operator vault acts only as a module through the Delay. Verify the v2/v3 mapping of every tagged parameter. Numbers illustrative.</li>
-    <li>Start state: a single key (EOA), no roles; clicking the key or any Zodiac piece upgrades it to the 2/3 multisig first. With one key, key theft and a tricked signature drain everything. Until the Deposits policy exists the DeFi frontend attack drains the vault (or is caught by the operator queue + council veto if those exist), and "Member key stolen" finds nothing to steal. Building Ben, External, Morpho or Lido auto-builds Deposits.</li>
+    <li>Start state: a single key (EOA), no roles; the One key node pulses a slow white glow until it is upgraded, as the cue for the first click; clicking the key or any Zodiac piece upgrades it to the 2/3 multisig first. With one key, key theft and a tricked signature drain everything. Until the Deposits policy exists the DeFi frontend attack drains the vault (or is caught by the operator queue + council veto if those exist), and "Member key stolen" finds nothing to steal. Building Ben, External, Morpho or Lido auto-builds Deposits.</li>
     <li>The Zodiac wordmark (brand SVG paths, no mark) fades into the top-left of the graph when the first Zodiac component is built and leaves on start over.</li>
-    <li>All five vectors stay visible; ones that do not apply are greyed with the reason on the tile ("Member key stolen" needs a policy, "Zodiac App hacked" needs a Zodiac component). Tile names follow the setup (owner / quorum / operator admins). The DEFAULT FLOW strip says how routine work executes right now, and the tile that attacks that flow carries a "default flow" tag: the malicious-signature vector for a single key and for a plain multisig (complacency: the second signer signs because a signature is already there), "Member key stolen" once roles exist.</li>
+    <li>All five vectors stay visible; ones that do not apply are greyed with the reason on the tile ("Member key stolen" needs a policy, "Zodiac App hacked" needs a Zodiac component). Tile names follow the setup (owner / quorum / operator admins). The tile that attacks the current default flow carries a "default flow" tag: the malicious-signature vector for a single key and for a plain multisig (complacency: the second signer signs because a signature is already there), "Member key stolen" once roles exist.</li>
     <li>Sharing: the bar under the cards and "share this run" in the console. X intent text follows the last outcome ($0 / drained / payroll leak), LinkedIn takes the URL only (its card comes from the host page's OG tags), copy link uses the clipboard API. Deep link = page URL + #simulator (also ?simulator), which lands on the cards, not the headline.</li>
   </ul>
 </details>
@@ -1071,15 +1069,7 @@
   }
   const hasMember = () => !!(S.deposits || S.payroll);
   const vectorAvailable = (key) => key === 'member' ? hasMember() : key === 'app' ? zodiacSetup() : true;
-  function flowText() {
-    if (!S.multisig) return 'One key signs everything. Every action is a full-power transaction.';
-    const roles = S.deposits || S.payroll || S.rebalance;
-    if (!roles) return S.operator ? 'Owners act through the operator vault: every action waits ' + S.p.timelock.dur + 'h in public.' : '2 of 3 owners sign every action, routine or not. Full power, twice.';
-    if (!S.operator) return 'Members act inside policies, instantly. Owners sign the rules, instantly.';
-    return 'Members act inside policies, instantly. Rule changes wait ' + S.p.timelock.dur + 'h in public' + (S.council ? ', and the council can veto.' : '.');
-  }
   const defaultVector = () => (S.multisig && hasMember()) ? 'member' : 'ownerN';
-  let lastFlow = null;
 
   function backToList() {
     clearAtk(); clearAuth(); hideTip();
@@ -1295,12 +1285,6 @@
       el('why-' + k2).textContent = ok ? '' : why[k2];
       el('tag-' + k2).hidden = k2 !== dv || !ok;
     });
-    const ft = flowText();
-    if (ft !== el('flow-t').textContent) {
-      el('flow-t').textContent = ft;
-      if (lastFlow !== null) { el('flow').setAttribute('class', 'flow flash'); setTimeout(() => el('flow').setAttribute('class', 'flow'), 1300); }
-    }
-    lastFlow = ft;
     el('zlogo').setAttribute('class', 'zlogo' + (zodiacSetup() ? ' on' : ''));
     refreshShare();
 
