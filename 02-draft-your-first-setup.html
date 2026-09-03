@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Draft your first setup in minutes with constellations</title>
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  /* Replicates deployables/website styling: app.css tokens + BlogPostLayout + .prose-blog */
+  :root {
+    --brand: #469ced;
+    --brand-light: #b1d3f2;
+    --brand-dark: #286cb2;
+    --ink: #0b1a3d;
+    --zinc-200: #e4e4e7;
+    --zinc-500: #71717a;
+    --zinc-700: #3f3f46;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #ffffff;
+    color: var(--ink);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    font-feature-settings: 'ss01', 'cv11';
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3 { font-family: 'Schibsted Grotesk', Inter, ui-sans-serif, system-ui, sans-serif; }
+  .container { max-width: 48rem; margin: 0 auto; padding: 0 24px; }
+
+  .post-head { padding: 112px 0 48px; }
+  .backlink { font-size: 14px; color: var(--brand-dark); text-decoration: none; }
+  .backlink:hover { text-decoration: underline; }
+  .eyebrow-b {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--brand-dark); margin-top: 24px;
+  }
+  .eyebrow-b::before { content: ""; width: 4px; height: 4px; border-radius: 50%; background: var(--brand); }
+  .post-head h1 {
+    margin: 24px 0 0;
+    font-size: clamp(34px, 5vw, 46px);
+    font-weight: 600; line-height: 1.08; letter-spacing: -0.025em;
+    color: var(--ink); text-wrap: balance;
+  }
+  .post-meta {
+    margin-top: 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px;
+    font-size: 14px; color: var(--zinc-500);
+  }
+
+  .prose-blog { color: var(--zinc-700); font-size: 1.0625rem; line-height: 1.7; padding-bottom: 96px; }
+  .prose-blog > * + * { margin-top: 1.5em; }
+  .prose-blog h2 {
+    color: var(--ink); margin-top: 2.5em; font-size: 1.75rem; font-weight: 600;
+    line-height: 1.2; letter-spacing: -0.02em; text-wrap: balance;
+  }
+  .prose-blog a { color: var(--brand-dark); text-decoration: none; text-underline-offset: 2px; }
+  .prose-blog a:hover { text-decoration: underline; }
+  .prose-blog strong { color: var(--ink); font-weight: 600; }
+  .prose-blog ol { padding-left: 1.5rem; }
+  .prose-blog li + li { margin-top: 0.75rem; }
+  .prose-blog code {
+    background: #f4f4f5; border-radius: 0.3rem; padding: 0.1rem 0.4rem; font-size: 0.95em;
+    font-family: 'JetBrains Mono', Menlo, monospace;
+  }
+  .prose-blog pre.codeblock {
+    background: #f4f4f5; border: 1px solid var(--zinc-200); border-radius: 10px;
+    padding: 14px 16px; overflow-x: auto; font-family: 'JetBrains Mono', Menlo, monospace;
+    font-size: 13px; line-height: 1.6; color: var(--zinc-700);
+  }
+
+
+  .offer {
+    border: 1px solid var(--brand-light); background: #f0f7fd; border-radius: 12px;
+    padding: 26px 28px;
+  }
+  .offer p { margin: 0; color: var(--ink); }
+  .offer p + p { margin-top: 12px; }
+  .offer .links { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 15px; }
+
+  .breakout { width: min(56rem, calc(100vw - 40px)); margin-left: 50%; transform: translateX(-50%); }
+
+  /* prompt card, in the series' ink-panel language */
+  .zpanel {
+    --zink: #eaf2fb; --zmut: #9db8d9; --zdim: #6292cf; --zbrand: #469ced; --zbl: #b1d3f2;
+    background: radial-gradient(120% 120% at 30% 20%, #122450 0%, #0b1a3d 100%);
+    border: 1.5px solid #22375f; border-radius: 20px; padding: 20px 22px;
+    color: var(--zink);
+  }
+  .zpanel .ztop { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+  .zpanel .zeyebrow {
+    font-family: 'JetBrains Mono', Menlo, monospace; font-size: 11px; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--zdim);
+  }
+  .zpanel .zcopy {
+    font-family: 'JetBrains Mono', Menlo, monospace; font-size: 12px; cursor: pointer;
+    border-radius: 999px; padding: 6px 14px; background: rgba(70, 156, 237, 0.14);
+    border: 1px solid var(--zbrand); color: var(--zink);
+  }
+  .zpanel .zcopy:focus-visible { outline: 2px solid var(--zbrand); outline-offset: 2px; }
+  .zpanel pre {
+    margin: 0; font-family: 'JetBrains Mono', Menlo, monospace; font-size: 12.5px;
+    line-height: 1.65; color: var(--zbl); white-space: pre-wrap; word-break: break-word;
+  }
+  .zpanel pre .br { color: #e8c35a; }
+
+</style>
+</head>
+<body>
+<header class="post-head">
+  <div class="container">
+    <div><a class="backlink" href="https://zodiac.eco/blog">← Back to blog</a></div>
+    <span class="eyebrow-b">Highlight series · Part 2</span>
+    <h1>Draft your first setup in minutes with constellations</h1>
+    <div class="post-meta">
+      <time datetime="2026-09-22">September 22, 2026</time>
+      <span>·</span>
+      <span>Jan-Felix Schwarz</span>
+      <span>·</span>
+      <span>6 min read</span>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+<article class="prose-blog">
+
+  <p>The simulator in Part 1 let you click an organization together: policies, members, a timelock, a council. This part gets you the same thing for your own organization, as something you can hold: a <strong>constellation</strong>, your setup written as code.</p>
+
+  <p>A constellation is a small repository. It declares your safes, your policies, who holds them, and the limits on everything. <code>push</code> compares it with the chain and opens the difference for review in the <a href="https://app.zodiac.eco">Zodiac App</a>. Nothing deploys, nothing changes, until your owners sign. That property is what makes the rest of this post safe to do: drafting is free.</p>
+
+  <p>To be clear about what you will have at the end: <strong>a showcase</strong>. Placeholder addresses, unreviewed numbers, nothing onchain. That is the point. Drafting your structure is now the cheap part; making it real is the part worth doing carefully, and there is an offer for that at the end.</p>
+
+  <h2>The guided path</h2>
+
+  <ol>
+    <li><strong>Start from a worked example.</strong> We published the simulator's own organization as a repo: <a href="https://github.com/jomoormann/zodiac-sim-org-constellation">zodiac-sim-org-constellation</a>. Three safes, one Roles modifier, three policies, and a README that explains every wiring decision, including the timelock. Fork it, or start from the blank <a href="https://github.com/gnosisguild/zodiac-constellation-template">template</a>.</li>
+    <li><strong>Write your requirements like you would brief a colleague.</strong> Who acts. Which routine actions they need. Which limits feel right. Who governs, and how fast. Plain sentences are enough; the prompt below shows the shape.</li>
+    <li><strong>Point an AI assistant at the docs.</strong> The developer docs ship an <a href="https://docs.zodiac.eco/llms.txt"><code>llms.txt</code></a> exactly for this: your assistant reads the whole reference in one go. Then give it the prompt below with your requirements filled in.</li>
+    <li><strong>Read what it wrote.</strong> The layout maps one-to-one to your brief: <code>roles/&lt;name&gt;/members.ts</code> is who, <code>permissions.ts</code> is what. The permissions read like sentences, and that is deliberate:
+      <pre class="codeblock">allow.eth.usdc.approve(POOL),
+allow.eth.aave_v3.pool.supply(USDC, c.withinAllowance(weekly.key), c.avatar),
+allow.eth.aave_v3.pool.withdraw(USDC, undefined, c.avatar),</pre>
+    Approve to one pool, supply within the weekly budget for the vault, withdraw only back to the vault. If a line does not read like something you meant, that is your review finding.</li>
+    <li><strong>Push, and look at the diff.</strong> <code>bun push</code> opens your draft as a reviewable change set in the Zodiac App. Still nothing onchain. It becomes real only when real owners sign, and this draft has none.</li>
+  </ol>
+
+  <p>This workflow is not hypothetical: our public <a href="https://github.com/jomoormann/zodiac-demo-constellation">demo organization</a> was drafted exactly this way, by an AI, across seven DeFi protocols. It is a showcase, not a deployment: the AI wrote every file and could not move a cent, because writing files is not authority. Signing is.</p>
+
+  <h2>The prompt</h2>
+
+  <p>Adapt the bracketed parts. The rules section is not decoration: it encodes the sharp edges we hit building the example repos, so leave it in.</p>
+
+  <div class="breakout">
+    <div class="zpanel">
+      <div class="ztop">
+        <span class="zeyebrow">Prompt · copy and adapt the [brackets]</span>
+        <button type="button" class="zcopy" id="copy-btn">copy</button>
+      </div>
+      <pre id="prompt-text">You are helping me draft a Zodiac constellation: my organization's onchain
+setup as code. This is a showcase draft, not a production deployment.
+
+Read first:
+- Docs: https://docs.zodiac.eco/llms-full.txt
+- Template: github.com/gnosisguild/zodiac-constellation-template
+- Worked example: github.com/jomoormann/zodiac-sim-org-constellation
+
+My organization:
+- People: <span class="br">[Ana (operations), Ben (trading), Mia (payroll)]</span> and <span class="br">[one automation key]</span>
+- Treasury holds <span class="br">[ETH and USDC]</span> on <span class="br">[Ethereum mainnet]</span>
+- Routine actions to delegate: <span class="br">[deposit idle USDC into Aave v3, up to
+  100k per week]</span> · <span class="br">[pay 3 team wallets, up to 30k per month]</span> ·
+  <span class="br">[swap ETH/USDC on CoW]</span>
+- Governance: <span class="br">[2/3]</span> admin safe acting through a <span class="br">[24h]</span> timelock,
+  security council <span class="br">[4/7]</span> as the treasury's owner (veto + exit)
+
+Rules:
+- Roles v2 only: no membership expiry, no USD-priced budgets, no slippage
+  bounds. Say so in comments where v3 would express something better.
+- Placeholder addresses only. Never ask for keys. Never deploy anything.
+- Pin every withdrawal and receiver parameter to the vault where possible.
+- Prefer DeFi Kit presets; where a preset cannot meter amounts, hand-write
+  the permission with c.withinAllowance instead.
+- Output the constellation/ files, plus a table of who can do what, with
+  limits.</pre>
+    </div>
+  </div>
+
+  <h2>From showcase to production</h2>
+
+  <p>A draft like this is deliberately not deployable. Between a showcase and a production setup sit the questions that actually matter: the real signer sets, allowance sizes that fit your flows, the timelock wiring details (the example repo's README documents the ones that bit us, down to why the Delay's owner must never be the operator), monitoring, and recovery.</p>
+
+  <div class="offer">
+    <p><strong>That part, we do with you.</strong> Draft your constellation, then bring it to a call: thirty minutes, free. We go through it together and translate it into a real, secure, deployable setup: signers, limits, wiring, the works. If you skipped the drafting, bring your requirements instead; we have done this enough times to draft live.</p>
+    <div class="links">
+      <a href="https://calendar.proton.me/bookings#CIEqv8uHWc0TcEx71Ug7m3bAx5dFmBjW6XNi1l7LrnI=">Book the call →</a>
+      <a href="https://github.com/jomoormann/zodiac-sim-org-constellation">Fork the example →</a>
+      <a href="https://docs.zodiac.eco/developers/constellations">Read the docs →</a>
+    </div>
+  </div>
+
+  <p>Next in the series: how the people inside those policies actually work day to day, with one signature instead of a ceremony.</p>
+
+</article>
+</div>
+
+<script>
+(function () {
+  var btn = document.getElementById('copy-btn');
+  var pre = document.getElementById('prompt-text');
+  if (!btn || !pre) return;
+  btn.addEventListener('click', function () {
+    var text = pre.innerText || pre.textContent;
+    var done = function () {
+      btn.textContent = 'copied ✓';
+      setTimeout(function () { btn.textContent = 'copy'; }, 1600);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done);
+    } else {
+      var ta = document.createElement('textarea');
+      ta.value = text; document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta); done();
+    }
+  });
+})();
+</script>
+</body>
+</html>

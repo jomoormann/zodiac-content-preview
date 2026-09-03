@@ -1,0 +1,1523 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>“Protocol multisigs fail operationally more often than cryptographically”</title>
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  /* Replicates deployables/website styling: app.css tokens + BlogPostLayout + .prose-blog */
+  :root {
+    --brand: #469ced;
+    --brand-light: #b1d3f2;
+    --brand-dark: #286cb2;
+    --ink: #0b1a3d;
+    --zinc-200: #e4e4e7;
+    --zinc-500: #71717a;
+    --zinc-700: #3f3f46;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #ffffff;
+    color: var(--ink);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    font-feature-settings: 'ss01', 'cv11';
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3 { font-family: 'Schibsted Grotesk', Inter, ui-sans-serif, system-ui, sans-serif; }
+  .container { max-width: 48rem; margin: 0 auto; padding: 0 24px; }
+
+  .post-head { padding: 112px 0 48px; }
+  .backlink { font-size: 14px; color: var(--brand-dark); text-decoration: none; }
+  .backlink:hover { text-decoration: underline; }
+  .eyebrow-b {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--brand-dark); margin-top: 24px;
+  }
+  .eyebrow-b::before { content: ""; width: 4px; height: 4px; border-radius: 50%; background: var(--brand); }
+  .post-head h1 {
+    margin: 24px 0 0;
+    font-size: clamp(34px, 5vw, 46px);
+    font-weight: 600; line-height: 1.08; letter-spacing: -0.025em;
+    color: var(--ink); text-wrap: balance;
+  }
+  .post-meta {
+    margin-top: 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px;
+    font-size: 14px; color: var(--zinc-500);
+  }
+
+  .prose-blog { color: var(--zinc-700); font-size: 1.0625rem; line-height: 1.7; padding-bottom: 96px; }
+  .prose-blog > * + * { margin-top: 1.5em; }
+  .prose-blog h2 {
+    color: var(--ink); margin-top: 2.5em; font-size: 1.75rem; font-weight: 600;
+    line-height: 1.2; letter-spacing: -0.02em; text-wrap: balance;
+  }
+  .prose-blog a { color: var(--brand-dark); text-decoration: none; text-underline-offset: 2px; }
+  .prose-blog a:hover { text-decoration: underline; }
+  .prose-blog strong { color: var(--ink); font-weight: 600; }
+  .prose-blog ol { padding-left: 1.5rem; }
+  .prose-blog li + li { margin-top: 0.5rem; }
+
+  .smallprint { font-size: 13px; color: var(--zinc-500); text-align: center; }
+
+  .parts { margin-top: 0.5em; }
+  .part { border-top: 1px solid var(--zinc-200); padding: 18px 0 4px; }
+  .part-label {
+    font-family: 'JetBrains Mono', Menlo, monospace; font-size: 11.5px; font-weight: 500;
+    letter-spacing: 0.1em; color: var(--brand-dark);
+  }
+  .part p { margin-top: 6px; }
+  .part .proposed-chip {
+    font-family: 'JetBrains Mono', Menlo, monospace; font-size: 10.5px; letter-spacing: 0.08em;
+    text-transform: uppercase; color: #92400e; background: #fef3c7;
+    border-radius: 999px; padding: 3px 10px; margin-left: 10px;
+  }
+
+  .offer {
+    border: 1px solid var(--brand-light); background: #f0f7fd; border-radius: 12px;
+    padding: 26px 28px;
+  }
+  .offer p { margin: 0; color: var(--ink); }
+  .offer .links { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 15px; }
+
+  .sim-breakout { width: min(91.25rem, calc(100vw - 40px)); margin: 0 auto; margin-left: 50%; transform: translateX(-50%); }
+
+
+  /* ===== scoped simulator styles ===== */
+  #zsim {
+    --bg: #081226; --panel: #0b1a3d; --card: #12244d; --edge: #2b4472;
+    --ink: #eaf2fb; --muted: #9db8d9; --dim: #6292cf; --brand: #469ced; --brand-light: #b1d3f2; --sand: #cea491;
+    --ghost: #3a5580;
+    --guard: #a08bf8; --guard-mid: #7f6ee0; --guard-dim: #55499a;
+    --auth: #52d98b; --ping: #e8c35a; --danger: #ff5c5c;
+  }
+  #zsim * { box-sizing: border-box; }
+  #zsim body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: Inter, system-ui, sans-serif; font-size: 15px; line-height: 1.5;
+    padding: 0 20px 70px;
+  }
+  #zsim .page { max-width: 1460px; margin: 0 auto; }
+  #zsim a { color: var(--brand); text-decoration: none; }
+  #zsim a:hover { text-decoration: underline; }
+  #zsim h1 { font-family: 'Schibsted Grotesk', Inter, sans-serif; letter-spacing: -0.01em; }
+  #zsim .eyebrow { font-family: 'JetBrains Mono', Menlo, monospace; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim); }
+  #zsim button { font-family: inherit; }
+  #zsim button:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+
+  #zsim header.doc { padding: 40px 0 6px; }
+  #zsim header.doc h1 { font-size: 36px; font-weight: 700; margin: 8px 0 8px; }
+  #zsim header.doc p { color: var(--muted); max-width: 68ch; margin: 0; font-size: 14.5px; }
+
+  #zsim .sim {
+    background: radial-gradient(120% 120% at 30% 20%, #122450 0%, #0b1a3d 100%);
+    border: 1.5px solid #22375f; border-radius: 24px; padding: 14px 16px 18px; margin-top: 0;
+  }
+  #zsim .sim > svg { width: 100%; height: auto; display: block; }
+  #zsim .sim [hidden] { display: none !important; }
+
+  #zsim .cluster { fill: rgba(70, 156, 237, 0.03); stroke: #223a63; stroke-width: 1; }
+
+  #zsim .node { cursor: default; }
+  #zsim .node .shape { fill: #12244d; stroke: #35578f; stroke-width: 1.5; transition: stroke 0.15s ease; }
+  #zsim .node .nm { fill: var(--ink); font-family: 'Schibsted Grotesk', Inter, sans-serif; font-size: 14px; font-weight: 600; }
+  #zsim .node .sub { fill: var(--muted); font-size: 10.5px; font-family: 'JetBrains Mono', Menlo, monospace; }
+  #zsim .node .ic { color: var(--brand-light); }
+  #zsim .node.edit { cursor: pointer; }
+  #zsim .node.edit:hover .shape { stroke: var(--brand); }
+  #zsim .node.ghost { cursor: pointer; }
+  #zsim .node.ghost .shape { fill: rgba(70, 156, 237, 0.03); stroke: var(--ghost); stroke-dasharray: 5 4; }
+  #zsim .node.ghost .nm { fill: var(--dim); font-weight: 500; }
+  #zsim .node.ghost .sub { fill: var(--ghost); }
+  #zsim .node.ghost .ic { color: var(--ghost); }
+  #zsim .node.ghost:hover .shape, #zsim .node.ghost:focus-visible .shape { stroke: var(--brand); fill: rgba(70, 156, 237, 0.08); }
+  #zsim .node.ghost:hover .nm { fill: var(--brand-light); }
+  #zsim .node.ghost:focus-visible { outline: none; }
+  #zsim .node:not(.ghost):focus, #zsim .node:not(.ghost):focus-visible { outline: none; }
+  #zsim .node.alarm .shape { stroke: var(--sand); }
+  #zsim .node.won .shape { stroke: var(--brand); filter: drop-shadow(0 0 7px rgba(70, 156, 237, 0.45)); }
+  #zsim .node.guard .ic { color: var(--guard); }
+  #zsim .node.guard:not(.ghost) .shape { stroke: var(--guard-mid); }
+  #zsim .node.guard.ghost .shape { stroke: var(--guard-dim); }
+  #zsim .node.guard.ghost .ic { color: var(--guard-dim); }
+  #zsim .node.guard.ghost:hover .shape { stroke: var(--guard); fill: rgba(160, 139, 248, 0.07); }
+  #zsim .node.guard.ghost:hover .nm { fill: var(--guard); }
+  #zsim .chip .nm { font-size: 11.5px; font-family: 'JetBrains Mono', Menlo, monospace; font-weight: 500; fill: var(--brand-light); }
+  #zsim .chip.ghost .nm { fill: var(--dim); }
+  #zsim .pen { color: var(--dim); }
+  #zsim .node.edit:hover .pen { color: var(--brand-light); }
+
+  #zsim .edge { stroke: #35578f; stroke-width: 1.5; fill: none; }
+  #zsim .edge.thick { stroke: var(--brand); stroke-width: 3; }
+  #zsim .edge.gov { stroke: var(--brand-light); stroke-dasharray: 6 5; stroke-width: 1.8; }
+  #zsim .edge.govwarn { stroke: var(--sand); stroke-dasharray: 6 5; stroke-width: 1.8; }
+  #zsim .edge.veto { stroke: var(--guard); stroke-width: 2; }
+  #zsim .edge.vghost { stroke: var(--guard-dim); stroke-width: 1.5; stroke-dasharray: 4 5; opacity: 0.8; }
+  #zsim .edge.ghost { stroke: var(--ghost); stroke-dasharray: 4 5; opacity: 0.75; }
+  #zsim .hide { display: none; }
+
+  #zsim .lbl { font-family: 'JetBrains Mono', Menlo, monospace; font-size: 10px; fill: var(--dim); letter-spacing: 0.06em; }
+  #zsim .lbl.warn { fill: var(--sand); }
+  #zsim .lbl.veto { fill: var(--guard); }
+  #zsim .col { font-family: 'JetBrains Mono', Menlo, monospace; font-size: 9.5px; fill: #4a608c; letter-spacing: 0.18em; }
+  #zsim #t-val { font-family: 'JetBrains Mono', Menlo, monospace; font-size: 16px; fill: var(--ink); }
+  #zsim .asset .shape { fill: #0d1c3e; stroke: #2b4472; }
+  #zsim .asset text { font-family: 'JetBrains Mono', Menlo, monospace; font-size: 10.5px; fill: var(--brand-light); }
+  #zsim .drainedfx .asset text { fill: var(--danger); opacity: 0.7; }
+  #zsim .drainedfx #t-val, #zsim .drainedfx #t-note { fill: var(--danger); }
+
+  @keyframes pop { 0% { stroke-width: 4; } 100% { stroke-width: 1.5; } }
+  #zsim .node.pop .shape { animation: pop 0.5s ease-out; }
+  #zsim .node.auth .shape {
+    stroke: var(--auth);
+    filter: drop-shadow(0 0 9px rgba(82, 217, 139, 0.7));
+  }
+  #zsim .node.ping .shape {
+    stroke: var(--ping);
+    filter: drop-shadow(0 0 8px rgba(232, 195, 90, 0.6));
+    animation: tlping 0.6s ease-in-out 5;
+  }
+  @keyframes tlping {
+    0%, 100% { filter: drop-shadow(0 0 2px rgba(232, 195, 90, 0.15)); }
+    50% { filter: drop-shadow(0 0 12px rgba(232, 195, 90, 0.95)); }
+  }
+  #zsim .node.vflash .shape { stroke: var(--guard); filter: drop-shadow(0 0 11px rgba(160, 139, 248, 0.85)); }
+  #zsim .sim-row { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; align-items: stretch; margin-top: 22px; }
+  @media (max-width: 960px) { #zsim .sim-row { grid-template-columns: 1fr; } }
+  #zsim .sim.atk { display: flex; flex-direction: column; min-height: 0; padding: 14px 16px 16px; contain: size; }
+  @media (max-width: 960px) { #zsim .sim.atk { contain: none; } }
+  #zsim .con-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; min-height: 22px; }
+  #zsim .con-status { margin-left: auto; font-family: 'JetBrains Mono', Menlo, monospace; font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); }
+  #zsim .con-status.busy { color: var(--ping); }
+  #zsim .con-status.busy::after { content: ' ▌'; animation: blink 0.9s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  #zsim .con-back { font-family: 'JetBrains Mono', Menlo, monospace; font-size: 11.5px; color: var(--brand-light); background: none; border: 0; padding: 0; cursor: pointer; }
+  #zsim .con-back:hover { text-decoration: underline; text-underline-offset: 2px; }
+  #zsim .con-intro { font-size: 12.5px; color: var(--muted); margin: 0 0 12px; line-height: 1.45; }
+  #zsim .flow { display: flex; gap: 10px; align-items: baseline; background: #0d1c3e; border: 1px solid #22375f; border-radius: 10px; padding: 8px 11px; margin: 0 0 12px; font-size: 12px; color: var(--muted); line-height: 1.4; transition: border-color 0.3s ease, box-shadow 0.3s ease; }
+  #zsim .flow.flash { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(70, 156, 237, 0.18); }
+  #zsim .flow-k { font-family: 'JetBrains Mono', Menlo, monospace; font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--brand-light); white-space: nowrap; }
+  #zsim .abtn .lbl { flex: 1 1 auto; }
+  #zsim .abtn .why { font-size: 9.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--dim); white-space: nowrap; }
+  #zsim .abtn .tag { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--auth); border: 1px solid #2e6b4f; border-radius: 999px; padding: 1px 7px; white-space: nowrap; }
+  #zsim .node.upg { cursor: pointer; }
+  #zsim .node.upg:hover .shape, #zsim .node.upg:focus-visible .shape { stroke: var(--brand); }
+  #zsim .node.upg:focus-visible { outline: none; }
+  #zsim #r-ownquorum { stroke: #6292cf; }
+  #zsim #r-ownquorum.ghostq { stroke: #8a6a55; stroke-dasharray: 4 3; }
+  #zsim #t-ownquorum { fill: #b1d3f2; }
+  #zsim #t-ownquorum.ghostq { fill: var(--sand); }
+  #zsim #atk-list { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow-y: auto; }
+  #zsim .atk-btns { display: flex; flex-direction: column; gap: 8px; margin: auto 0; flex: 1 1 auto; max-height: 332px; }
+  #zsim .abtn {
+    display: flex; align-items: center; gap: 11px; width: 100%; text-align: left; flex: 1 1 auto; max-height: 60px;
+    font-family: 'JetBrains Mono', Menlo, monospace; font-size: 12px; line-height: 1.3; cursor: pointer;
+    border-radius: 12px; padding: 12px 14px; min-height: 48px; background: #0d1c3e;
+    border: 1px dashed #8a6a55; color: var(--sand);
+  }
+  #zsim .abtn:hover:not(:disabled) { background: rgba(206, 164, 145, 0.1); border-style: solid; }
+  #zsim .abtn:disabled { opacity: 0.35; cursor: default; }
+  #zsim .sim .abtn .abtn-ic { width: 18px; height: 18px; flex: none; color: var(--sand); }
+  #zsim #atk-run { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+  #zsim .con-title { display: flex; align-items: center; gap: 9px; font-family: 'Schibsted Grotesk', Inter, sans-serif; font-size: 15px; font-weight: 600; color: var(--ink); margin: 0 0 10px; }
+  #zsim .con-ic { width: 17px; height: 17px; flex: none; color: var(--sand); }
+  #zsim .con-body { flex: 1; min-height: 0; overflow-y: auto; background: #070f22; border: 1px solid #16274a; border-radius: 12px; padding: 12px; }
+  #zsim .con-foot { display: flex; justify-content: flex-end; gap: 16px; margin-top: 10px; min-height: 18px; }
+  #zsim .con-foot .reset { margin-left: 0; }
+  #zsim .sim-row { scroll-margin-top: 16px; }
+  #zsim .zlogo .zword { opacity: 0; transition: opacity 0.8s ease; }
+  #zsim .zlogo.on .zword { opacity: 1; animation: logoglow 1.8s ease-out 1; }
+  @keyframes logoglow { 0% { filter: drop-shadow(0 0 0 rgba(70, 156, 237, 0)); } 35% { filter: drop-shadow(0 0 10px rgba(70, 156, 237, 0.8)); } 100% { filter: drop-shadow(0 0 0 rgba(70, 156, 237, 0)); } }
+  #zsim .share { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px 12px; margin: 16px 4px 0; }
+  #zsim .share .eyebrow { margin-right: 6px; }
+  #zsim .share a, #zsim .share button {
+    display: inline-flex; align-items: center; gap: 7px; cursor: pointer; text-decoration: none;
+    font-family: 'JetBrains Mono', Menlo, monospace; font-size: 11.5px; letter-spacing: 0.02em;
+    border-radius: 999px; padding: 7px 14px; background: #0d1c3e; border: 1px solid #35578f; color: var(--brand-light);
+  }
+  #zsim .share a:hover, #zsim .share button:hover { background: rgba(70, 156, 237, 0.14); border-color: var(--brand); text-decoration: none; }
+  #zsim .share .sic { width: 13px; height: 13px; flex: none; }
+  #zsim .share.flash a, #zsim .share.flash button { animation: sharepulse 1.2s ease-out 1; }
+  @keyframes sharepulse { 0% { box-shadow: 0 0 0 0 rgba(70, 156, 237, 0.7); } 100% { box-shadow: 0 0 0 12px rgba(70, 156, 237, 0); } }
+  #zsim #atk-feed { list-style: none; margin: 0; padding: 0; font-family: 'JetBrains Mono', Menlo, monospace; font-size: 11.5px; }
+  #zsim #atk-feed li { padding: 4px 0 4px 14px; color: var(--muted); position: relative; animation: linein 0.25s ease-out; }
+  #zsim #atk-feed li::before { content: '>'; position: absolute; left: 0; color: var(--dim); }
+  @keyframes linein { from { opacity: 0; transform: translateX(-4px); } }
+  #zsim #atk-feed .warn { color: var(--sand); }
+  #zsim #atk-feed .good { color: var(--brand-light); }
+  #zsim #atk-result { margin: 12px 0 0; border-radius: 10px; padding: 12px 14px; animation: stampin 0.35s ease-out; }
+  @keyframes stampin { from { opacity: 0; transform: scale(0.94); } }
+  #zsim #atk-result.hide { display: none; }
+  #zsim #atk-result.res.zero { border: 1px solid var(--auth); background: rgba(82, 217, 139, 0.08); }
+  #zsim #atk-result.res.partial { border: 1px solid var(--sand); background: rgba(206, 164, 145, 0.08); }
+  #zsim #atk-result.res.risk { border: 1px solid var(--danger); background: rgba(255, 92, 92, 0.08); }
+  #zsim #atk-result .stamp { font-family: 'JetBrains Mono', Menlo, monospace; font-size: 17px; letter-spacing: 0.04em; }
+  #zsim #atk-result.res.zero .stamp { color: var(--auth); }
+  #zsim #atk-result.res.partial .stamp { color: var(--sand); }
+  #zsim #atk-result.res.risk .stamp { color: var(--danger); }
+  #zsim #atk-result .rsub { font-size: 12.5px; color: var(--muted); margin-top: 5px; }
+  #zsim #atk-hint { margin: 8px 0 0; font-size: 12px; color: var(--ping); font-family: 'JetBrains Mono', Menlo, monospace; }
+  @media (prefers-reduced-motion: reduce) { #zsim #atk-feed li, #zsim #atk-result, #zsim .con-status.busy::after { animation: none; } }
+  #zsim .node.drained .shape { stroke: var(--danger); fill: rgba(255, 92, 92, 0.08); animation: drainpulse 0.9s ease-in-out 3; }
+  @keyframes drainpulse {
+    0%, 100% { filter: drop-shadow(0 0 2px rgba(255, 92, 92, 0.2)); }
+    50% { filter: drop-shadow(0 0 14px rgba(255, 92, 92, 0.9)); }
+  }
+  #zsim .node.safe .shape { stroke: var(--auth); animation: safepulse 1.1s ease-out 2; }
+  @keyframes safepulse {
+    0% { filter: drop-shadow(0 0 0 rgba(82, 217, 139, 0)); }
+    40% { filter: drop-shadow(0 0 16px rgba(82, 217, 139, 0.9)); }
+    100% { filter: drop-shadow(0 0 4px rgba(82, 217, 139, 0.35)); }
+  }
+  #zsim .leakfx #t-val { fill: var(--sand); }
+  #zsim .sub.risk { fill: var(--sand); }
+  @media (prefers-reduced-motion: reduce) { #zsim .node.pop .shape, #zsim .node.ping .shape, #zsim .node.drained .shape, #zsim .node.safe .shape, #zsim .zlogo.on .zword { animation: none; } .zlogo .zword { transition: none; } }
+
+  /* ===== tooltip ===== */
+  #zsim #tip {
+    position: fixed; z-index: 30; max-width: 290px; pointer-events: none;
+    background: #0e2046; border: 1px solid var(--edge); border-radius: 10px;
+    padding: 10px 13px; box-shadow: 0 10px 34px rgba(0, 0, 0, 0.5);
+    font-size: 12.5px; line-height: 1.5; color: var(--muted);
+  }
+  #zsim #tip.hide { display: none; }
+  #zsim #tip .tip-k {
+    display: block; font-family: 'JetBrains Mono', Menlo, monospace; font-size: 9.5px;
+    letter-spacing: 0.14em; margin-bottom: 4px; color: var(--dim);
+  }
+  #zsim #tip[data-k="policy"] .tip-k, #zsim #tip[data-k="target"] .tip-k { color: var(--brand); }
+  #zsim #tip[data-k="member"] .tip-k { color: var(--brand-light); }
+  #zsim #tip[data-k="guard"] .tip-k { color: var(--guard); }
+  #zsim #tip[data-k="risk"] .tip-k { color: var(--sand); }
+  #zsim #tip b { color: var(--ink); font-weight: 600; }
+
+  #zsim .ctrl { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 6px 4px 0; }
+  #zsim .sbtn {
+    font-family: 'JetBrains Mono', Menlo, monospace; font-size: 12px; cursor: pointer;
+    border-radius: 999px; padding: 7px 14px; background: #0d1c3e;
+    border: 1px solid #8a6a55; color: var(--sand);
+  }
+  #zsim .sbtn:hover:not(:disabled) { background: rgba(206, 164, 145, 0.1); }
+  #zsim .sbtn:disabled { opacity: 0.35; cursor: default; }
+  #zsim .reset {
+    font-family: 'JetBrains Mono', Menlo, monospace; font-size: 11.5px; color: var(--dim);
+    background: none; border: none; cursor: pointer; text-decoration: underline; text-underline-offset: 2px;
+    margin-left: auto;
+  }
+  #zsim #b-log { list-style: none; margin: 10px 4px 0; padding: 0; font-family: 'JetBrains Mono', Menlo, monospace; font-size: 11.5px; }
+  #zsim #b-log li { padding: 3px 0; color: var(--muted); }
+  #zsim #b-log .warn { color: var(--sand); }
+  #zsim #b-log .good { color: var(--brand-light); }
+  #zsim #b-verdict { margin: 10px 4px 0; border-radius: 10px; padding: 11px 14px; font-size: 13px; display: none; }
+  #zsim #b-verdict[data-tone="good"] { display: block; background: rgba(70, 156, 237, 0.12); border: 1px solid var(--brand); }
+  #zsim #b-verdict[data-tone="bad"] { display: block; background: rgba(206, 164, 145, 0.1); border: 1px solid var(--sand); }
+
+  /* ===== editor modal ===== */
+  #zsim #mo-overlay {
+    position: fixed; inset: 0; background: rgba(6, 13, 28, 0.72);
+    display: flex; align-items: center; justify-content: center; z-index: 20; padding: 20px;
+  }
+  #zsim #mo-overlay.hide { display: none; }
+  #zsim .mo {
+    width: 400px; max-width: 100%; max-height: 86vh; overflow-y: auto;
+    background: #0e2046; border: 1px solid var(--brand); border-radius: 16px; padding: 20px 22px;
+    box-shadow: 0 18px 60px rgba(0, 0, 0, 0.5);
+  }
+  #zsim .mo h2 { font-family: 'Schibsted Grotesk', Inter, sans-serif; font-size: 18px; margin: 2px 0 2px; }
+  #zsim .mo .mo-sub { font-size: 12px; color: var(--muted); margin-bottom: 14px; }
+  #zsim .mo-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid #223a63; }
+  #zsim .mo-row:last-of-type { border-bottom: none; }
+  #zsim .mo-row .lab { font-size: 13px; color: var(--ink); display: flex; align-items: center; gap: 7px; flex: 1; }
+  #zsim .tag {
+    font-family: 'JetBrains Mono', Menlo, monospace; font-size: 9px; letter-spacing: 0.08em;
+    border-radius: 4px; padding: 1px 5px; white-space: nowrap;
+  }
+  #zsim .tag.v2 { color: var(--dim); border: 1px solid var(--edge); }
+  #zsim .tag.v3 { color: var(--brand-light); border: 1px solid var(--brand); }
+  #zsim .tag.dly { color: var(--sand); border: 1px solid #8a6a55; }
+  #zsim .mo select, #zsim .mo input[type="range"] { accent-color: var(--brand); }
+  #zsim .mo select {
+    background: #0d1c3e; color: var(--brand-light); border: 1px solid var(--edge); border-radius: 6px;
+    padding: 5px 8px; font-family: 'JetBrains Mono', Menlo, monospace; font-size: 12px; cursor: pointer;
+  }
+  #zsim .mo input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--brand); cursor: pointer; }
+  #zsim .mo-range { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; min-width: 150px; }
+  #zsim .mo-range output { font-family: 'JetBrains Mono', Menlo, monospace; font-size: 12px; color: var(--brand-light); }
+  #zsim .mo-note { font-size: 11.5px; color: var(--dim); margin: 12px 0 14px; font-family: 'JetBrains Mono', Menlo, monospace; line-height: 1.5; }
+  #zsim .mo-btns { display: flex; gap: 8px; justify-content: flex-end; }
+  #zsim .mo-btn {
+    font-family: 'JetBrains Mono', Menlo, monospace; font-size: 12px; cursor: pointer;
+    border-radius: 999px; padding: 7px 16px;
+  }
+  #zsim .mo-btn.save { background: rgba(70, 156, 237, 0.16); border: 1px solid var(--brand); color: var(--ink); }
+  #zsim .mo-btn.cancel { background: none; border: 1px solid var(--edge); color: var(--muted); }
+
+  #zsim details.notes { border: 1.5px dashed #3a4a6b; border-radius: 12px; padding: 14px 20px; margin-top: 28px; font-size: 13px; color: var(--muted); }
+  #zsim details.notes summary { font-family: 'JetBrains Mono', Menlo, monospace; font-size: 10.5px; letter-spacing: 0.14em; color: var(--sand); cursor: pointer; }
+  #zsim details.notes ul { margin: 10px 0 0; padding-left: 18px; }
+  #zsim details.notes li { margin-bottom: 5px; }
+
+</style>
+</head>
+<body>
+<header class="post-head">
+  <div class="container">
+    <div><a class="backlink" href="https://zodiac.eco/blog">← Back to blog</a></div>
+    <span class="eyebrow-b">Highlight series · Part 1</span>
+    <h1>“Protocol multisigs fail operationally more often than cryptographically”</h1>
+    <div class="post-meta">
+      <time datetime="2026-09-08">September 8, 2026</time>
+      <span>·</span>
+      <span>Jan-Felix Schwarz</span>
+      <span>·</span>
+      <span>6 min read · plus the simulator</span>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+<article class="prose-blog">
+
+  <p>That sentence is not ours. It is the core threat model of the <a href="https://frameworks.securityalliance.org/multisig-for-protocols/overview">Security Alliance's multisig security framework</a>, and we think it is the truest thing written about onchain operations. The failures that drain treasuries rarely touch the protocol or its cryptography. They happen in the operation around it: signer keys get phished. Routine actions run on permissions far wider than the task, where address poisoning, a manipulated frontend, or a simple mistake is enough. Admin changes land instantly and silently. Nothing broke, and the money is gone.</p>
+
+  <p>Zodiac's answer is structural. You compose the setup that fits your organization: vaults, policies with real limits, a timelock on power, a guardian with an exit. Every rule in that setup is enforced onchain, on every call. Not by a runbook, not by a vendor's server, and not by us.</p>
+
+  <p>So we built a simulator. Below sits a treasury of $45,000,000 in ETH and USDC (simulated, nothing onchain), and the real architecture to protect it: policies with members and allowed targets, an operator vault behind a public timelock, a security council that owns the vault and holds a veto and an exit. Every piece maps to deployed contracts; a few parameters are tagged v3 for the next Roles release. It starts where most treasuries start: a single key. Upgrade it to a multisig, then add roles, a timelock and a council. Build the structure (dashed pieces are clickable, hover explains everything), edit the policies, then run the attacks in the card beside it. They are the operational failures the framework is talking about.</p>
+
+  <h2>Build it, then break it</h2>
+
+  <div class="sim-breakout">
+    <div id="zsim">
+<div class="sim-row" id="simulator">
+<div class="sim" id="sim-panel">
+  <svg id="b-svg" viewBox="0 0 1000 560" role="group" aria-label="Interactive org structure. It starts with a single key and no roles; the key upgrades to a 2-of-3 multisig. Each policy is a cluster: members feed it, target protocols hang off it, and it gates the treasury. Owners govern directly until an operator vault takes over operations through a public timelock; a security council then owns the treasury, with an exit that withdraws everything to safety and a veto over the queue. Dashed elements can be added; solid policies can be edited.">
+    <defs>
+      <symbol id="i-person" viewBox="0 0 24 24">
+        <circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/>
+        <path d="M4.5 20c1.6-4.4 4.8-6 7.5-6s5.9 1.6 7.5 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </symbol>
+      <symbol id="i-ext" viewBox="0 0 24 24">
+        <circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-dasharray="3 2.4"/>
+        <path d="M4.5 20c1.6-4.4 4.8-6 7.5-6s5.9 1.6 7.5 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-dasharray="3 2.4"/>
+      </symbol>
+      <symbol id="i-bot" viewBox="0 0 24 24">
+        <rect x="5" y="8" width="14" height="10" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/>
+        <circle cx="9.5" cy="13" r="1.4" fill="currentColor"/>
+        <circle cx="14.5" cy="13" r="1.4" fill="currentColor"/>
+        <line x1="12" y1="4" x2="12" y2="8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </symbol>
+      <symbol id="i-vault" viewBox="0 0 24 24">
+        <rect x="4" y="4.5" width="16" height="15" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/>
+        <circle cx="12" cy="12" r="3.6" fill="none" stroke="currentColor" stroke-width="1.8"/>
+        <line x1="12" y1="8.4" x2="12" y2="10.2" stroke="currentColor" stroke-width="1.6"/>
+      </symbol>
+      <symbol id="i-deposit" viewBox="0 0 24 24">
+        <path d="M12 3.5v10.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M8.2 10.4L12 14.2l3.8-3.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M4.5 15v2.8a2.2 2.2 0 0 0 2.2 2.2h10.6a2.2 2.2 0 0 0 2.2-2.2V15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </symbol>
+      <symbol id="i-swap" viewBox="0 0 24 24">
+        <path d="M5 9h12l-3-3M19 15H7l3 3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </symbol>
+      <symbol id="i-pay" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="8.4" fill="none" stroke="currentColor" stroke-width="1.8"/>
+        <path d="M12 6.8v10.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M14.6 9.6c0-1.1-1.2-1.9-2.6-1.9s-2.6.8-2.6 1.9c0 2.5 5.2 1.5 5.2 4.1 0 1.1-1.2 1.9-2.6 1.9s-2.6-.8-2.6-1.9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      </symbol>
+      <symbol id="i-hour" viewBox="0 0 24 24">
+        <path d="M7 3.5h10M7 20.5h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M8 3.5c0 4.2 2.8 5 4 8.5-1.2 3.5-4 4.3-4 8.5M16 3.5c0 4.2-2.8 5-4 8.5 1.2 3.5 4 4.3 4 8.5" fill="none" stroke="currentColor" stroke-width="1.8"/>
+      </symbol>
+      <symbol id="i-lock" viewBox="0 0 24 24">
+        <rect x="5" y="10.5" width="14" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/>
+        <path d="M8.2 10.5V7.8a3.8 3.8 0 0 1 7.6 0v2.7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        <circle cx="12" cy="15.5" r="1.3" fill="currentColor"/>
+      </symbol>
+      <symbol id="i-pen" viewBox="0 0 24 24">
+        <path d="M5 19l3.4-0.8L19 7.6a1.9 1.9 0 0 0-2.7-2.7L5.7 15.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+      </symbol>
+      <symbol id="i-keys" viewBox="0 0 24 24">
+        <circle cx="9" cy="9" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/>
+        <path d="M12 12l7 7M16.5 16.5l2-2M14 14l2-2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </symbol>
+      <symbol id="i-key" viewBox="0 0 24 24">
+        <circle cx="8" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/>
+        <path d="M12 12h8M17 12v3M20 12v2.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </symbol>
+      <symbol id="i-window" viewBox="0 0 24 24">
+        <rect x="3.5" y="5" width="17" height="14" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/>
+        <path d="M3.5 9.5h17" stroke="currentColor" stroke-width="1.8"/>
+        <path d="M9.5 12.5l5 4M14.5 12.5l-5 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </symbol>
+      <symbol id="i-server" viewBox="0 0 24 24">
+        <rect x="4" y="4.5" width="16" height="6" rx="1.8" fill="none" stroke="currentColor" stroke-width="1.8"/>
+        <rect x="4" y="13.5" width="16" height="6" rx="1.8" fill="none" stroke="currentColor" stroke-width="1.8"/>
+        <circle cx="8" cy="7.5" r="1.1" fill="currentColor"/>
+        <circle cx="8" cy="16.5" r="1.1" fill="currentColor"/>
+      </symbol>
+      <symbol id="i-x" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+      </symbol>
+      <symbol id="i-li" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0z"/>
+      </symbol>
+      <symbol id="i-link" viewBox="0 0 24 24">
+        <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+      </symbol>
+    </defs>
+
+    <!-- ===== zodiac wordmark: appears once a Zodiac component exists ===== -->
+    <g id="zlogo" class="zlogo" aria-hidden="true">
+      <g class="zword" transform="translate(40 41) scale(0.0494)" fill="#eaf2fb">
+        <path d="M1679.46 5.625C1631.69 5.625 1589.01 26.5957 1559.7 59.8888C1535.11 87.7555 1520.28 124.271 1520.28 164.799C1520.28 205.327 1535.11 241.842 1559.7 269.709C1589.01 303.002 1631.69 323.973 1679.46 323.973H1808V269.709H1679.46C1621.57 269.709 1574.54 222.313 1574.54 164.799C1574.54 107.285 1621.57 59.8888 1679.46 59.8888H1808V5.625H1679.46Z"/>
+        <path d="M1385.06 5.65234H1312.34L1208.27 260.353C1226.3 264.112 1244.17 268.182 1261.89 272.732L1273.82 243.424H1423.84L1456.77 324H1515.39L1385.06 5.65234ZM1294.14 193.569L1348.69 60.0292L1403.4 193.569H1294.14Z"/>
+        <path d="M979.252 59.8879C949.942 26.6513 907.293 5.65234 859.499 5.65234H735.025V231.667C753.058 229.943 771.231 228.699 789.405 227.738V59.8879H859.47C917.298 59.8879 964.329 106.916 964.329 164.741C964.329 187.945 956.811 209.424 943.951 226.806C964.159 227.427 984.396 228.699 1004.29 230.423C1013.54 210.357 1018.57 188.256 1018.57 164.741C1018.57 124.609 1003.84 88.0937 979.224 59.8879H979.252Z"/>
+        <path d="M1130.49 5.65234V245.77C1112.46 242.632 1094.43 240.117 1076.25 237.771V5.65234H1130.49Z"/>
+        <path d="M515.558 0C424.492 0 350.809 73.8214 350.809 164.741C350.809 217.394 375.426 264.282 413.978 294.522C439.67 286.524 465.559 279.317 491.731 272.732C442.213 261.908 405.047 217.564 405.047 164.741C405.047 103.921 454.593 54.2355 515.558 54.2355C576.522 54.2355 626.069 103.921 626.069 164.741C626.069 200.804 608.828 232.939 582.034 252.977C608.517 247.805 635.17 243.424 662.133 239.976C673.721 217.394 680.307 191.845 680.307 164.741C680.307 73.8214 606.482 0 515.558 0Z"/>
+        <path d="M0 59.9161H256.889L0 244.3V323.943H307.028V269.68H54.0402L310.844 85.324V5.65234H0V59.9161Z"/>
+      </g>
+    </g>
+
+    <!-- cluster containers -->
+    <rect class="cluster" x="32" y="136" width="504" height="140" rx="16"/>
+    <rect class="cluster" x="32" y="300" width="504" height="92" rx="16"/>
+    <rect class="cluster" x="32" y="410" width="504" height="92" rx="16"/>
+
+    <text x="48" y="128" class="col">MEMBERS</text>
+    <text x="210" y="128" class="col">POLICIES</text>
+    <text x="396" y="128" class="col">TARGETS</text>
+
+    <!-- ===== edges ===== -->
+    <path id="e-ana" class="edge ghost" d="M158 167 C 184 167, 190 192, 210 196"/>
+    <path id="e-ben" class="edge ghost" d="M158 211 C 184 211, 188 210, 210 210"/>
+    <path id="e-ext" class="edge ghost" d="M158 255 C 184 255, 190 228, 210 224"/>
+    <path id="e-tAave" class="edge ghost" d="M370 190 C 382 186, 386 178, 396 174"/>
+    <path id="e-tMorpho" class="edge ghost" d="M370 210 C 382 210, 386 209, 396 209"/>
+    <path id="e-tLido" class="edge ghost" d="M370 230 C 382 234, 386 242, 396 245"/>
+    <path id="e-gate-dep" class="edge ghost" d="M536 206 C 570 232, 598 256, 620 274"/>
+    <path id="e-mia" class="edge ghost" d="M158 337 C 184 337, 188 342, 210 344"/>
+    <path id="e-tTeam" class="edge ghost" d="M370 336 C 382 336, 386 340, 396 342"/>
+    <path id="e-gate-pay" class="edge ghost" d="M536 346 C 568 342, 596 336, 620 332"/>
+    <path id="e-agent" class="edge ghost" d="M158 447 C 184 447, 188 450, 210 452"/>
+    <path id="e-tCow" class="edge ghost" d="M370 444 C 382 446, 386 450, 396 452"/>
+    <path id="e-gate-reb" class="edge ghost" d="M536 456 C 572 434, 598 410, 620 388"/>
+    <path id="e-own-direct" class="edge govwarn" d="M646 74 V 238"/>
+    <path id="e-own-op" class="edge ghost" d="M734 74 C 742 90, 748 106, 756 120"/>
+    <path id="e-op-t" class="edge ghost" d="M748 176 C 738 198, 728 220, 722 238"/>
+    <path id="e-cx" class="edge vghost" d="M948 82 C 972 170, 920 226, 812 240"/>
+    <path id="e-cv" class="edge vghost hide" d="M880 82 C 900 150, 850 210, 750 206"/>
+    <text x="712" y="230" text-anchor="end" class="lbl hide" id="l-tl24">24H · PUBLIC</text>
+    <text x="828" y="262" class="lbl veto hide" id="l-exit">EXIT AND WITHDRAW ALL</text>
+    <text x="894" y="106" class="lbl veto hide" id="l-veto">VETO</text>
+
+    <!-- ===== deposits cluster ===== -->
+    <g class="node ghost" id="n-ana" data-build="deposits" tabindex="0" role="button">
+      <rect class="shape" x="40" y="150" width="118" height="34" rx="17"/>
+      <use href="#i-person" class="ic" x="52" y="158" width="18" height="18"/>
+      <text class="nm" id="t-ana" x="76" y="172">+ Ana</text>
+    </g>
+    <g class="node ghost" id="n-ben" data-build="ben" tabindex="0" role="button">
+      <rect class="shape" x="40" y="194" width="118" height="34" rx="17"/>
+      <use href="#i-person" class="ic" x="52" y="202" width="18" height="18"/>
+      <text class="nm" id="t-ben" x="76" y="216">+ Ben</text>
+    </g>
+    <g class="node ghost" id="n-ext" data-build="ext" tabindex="0" role="button">
+      <rect class="shape" x="40" y="238" width="118" height="34" rx="17"/>
+      <use href="#i-ext" class="ic" x="52" y="246" width="18" height="18"/>
+      <text class="nm" id="t-ext" x="76" y="260">+ External</text>
+    </g>
+    <g class="node ghost" id="n-deposits" data-build="deposits" data-edit="deposits" tabindex="0" role="button">
+      <rect class="shape" x="210" y="168" width="160" height="84" rx="14"/>
+      <use href="#i-deposit" class="ic" x="224" y="182" width="22" height="22"/>
+      <text class="nm" id="t-deposits" x="254" y="199">+ Deposits</text>
+      <text class="sub" id="t-depsub" x="224" y="236"></text>
+      <use href="#i-pen" class="pen hide" id="ed-deposits" x="344" y="178" width="15" height="15"/>
+    </g>
+    <g class="node chip ghost" id="n-tAaveN" data-build="deposits" tabindex="0" role="button">
+      <rect class="shape" x="396" y="161" width="76" height="26" rx="13"/>
+      <text class="nm" id="t-tAaveN" x="434" y="178" text-anchor="middle">+ Aave</text>
+    </g>
+    <g class="node chip ghost" id="n-morpho" data-build="morpho" tabindex="0" role="button">
+      <rect class="shape" x="396" y="196" width="88" height="26" rx="13"/>
+      <text class="nm" id="t-morpho" x="440" y="213" text-anchor="middle">+ Morpho</text>
+    </g>
+    <g class="node chip ghost" id="n-lido" data-build="lido" tabindex="0" role="button">
+      <rect class="shape" x="396" y="232" width="76" height="26" rx="13"/>
+      <text class="nm" id="t-lido" x="434" y="249" text-anchor="middle">+ Lido</text>
+    </g>
+
+    <!-- ===== payroll cluster ===== -->
+    <g class="node ghost" id="n-mia" data-build="payroll" tabindex="0" role="button">
+      <rect class="shape" x="40" y="320" width="118" height="34" rx="17"/>
+      <use href="#i-person" class="ic" x="52" y="328" width="18" height="18"/>
+      <text class="nm" id="t-mia" x="76" y="342">+ Mia</text>
+    </g>
+    <g class="node ghost" id="n-payroll" data-build="payroll" data-edit="payroll" tabindex="0" role="button">
+      <rect class="shape" x="210" y="306" width="160" height="76" rx="14"/>
+      <use href="#i-pay" class="ic" x="224" y="318" width="22" height="22"/>
+      <text class="nm" id="t-payroll" x="254" y="335">+ Payroll</text>
+      <text class="sub" id="t-paysub" x="224" y="366">$30k/mo → team</text>
+      <use href="#i-pen" class="pen hide" id="ed-payroll" x="344" y="316" width="15" height="15"/>
+    </g>
+    <g class="node chip ghost" id="n-tTeam" data-build="teamwallets" tabindex="0" role="button">
+      <rect class="shape" x="396" y="329" width="120" height="26" rx="13"/>
+      <text class="nm" id="t-tTeam" x="456" y="346" text-anchor="middle">+ Team wallets</text>
+    </g>
+
+    <!-- ===== rebalance cluster ===== -->
+    <g class="node ghost" id="n-agent" data-build="rebalance" tabindex="0" role="button">
+      <rect class="shape" x="40" y="430" width="118" height="34" rx="17"/>
+      <use href="#i-bot" class="ic" x="52" y="438" width="18" height="18"/>
+      <text class="nm" id="t-agent" x="76" y="452">+ Agent</text>
+    </g>
+    <g class="node ghost" id="n-rebalance" data-build="rebalance" data-edit="rebalance" tabindex="0" role="button">
+      <rect class="shape" x="210" y="416" width="160" height="76" rx="14"/>
+      <use href="#i-swap" class="ic" x="224" y="428" width="22" height="22"/>
+      <text class="nm" id="t-rebalance" x="254" y="445">+ Rebalance</text>
+      <text class="sub" id="t-rebsub" x="224" y="476"></text>
+      <use href="#i-pen" class="pen hide" id="ed-rebalance" x="344" y="426" width="15" height="15"/>
+    </g>
+    <g class="node chip ghost" id="n-tCow" data-build="rebalance" tabindex="0" role="button">
+      <rect class="shape" x="396" y="439" width="100" height="26" rx="13"/>
+      <text class="nm" id="t-tCow" x="446" y="456" text-anchor="middle">+ Cowswap</text>
+    </g>
+
+    <!-- ===== governance ===== -->
+    <g class="node upg" id="n-owners" data-build="multisig" tabindex="0" role="button">
+      <rect class="shape" x="620" y="30" width="170" height="44" rx="22"/>
+      <use id="ic-owners" href="#i-key" class="ic" x="634" y="41" width="22" height="22"/>
+      <text class="nm" id="t-owners" x="664" y="58">One key</text>
+      <g id="g-ownquorum">
+        <rect id="r-ownquorum" class="ghostq" x="740" y="43" width="36" height="18" rx="9" fill="none"/>
+        <text id="t-ownquorum" class="sub ghostq" x="758" y="56" text-anchor="middle">1/1</text>
+      </g>
+    </g>
+    <g class="node ghost" id="n-operator" data-build="operator" tabindex="0" role="button">
+      <rect class="shape" x="690" y="120" width="180" height="56" rx="14"/>
+      <use href="#i-vault" class="ic" x="704" y="132" width="22" height="22"/>
+      <text class="nm" id="t-operator" x="734" y="144">+ Operator vault</text>
+      <text class="sub" id="t-opsub" x="704" y="164">moves the owners here</text>
+      <g id="g-opquorum" class="hide">
+        <rect x="816" y="128" width="42" height="18" rx="9" fill="none" stroke="#6292cf"/>
+        <text x="837" y="141" text-anchor="middle" class="sub" style="fill: #b1d3f2;">2/3</text>
+      </g>
+    </g>
+    <g class="node hide" id="n-tl" data-edit="timelock" tabindex="-1" role="button">
+      <circle class="shape" cx="732" cy="206" r="16"/>
+      <use href="#i-hour" class="ic" x="723" y="197" width="18" height="18"/>
+    </g>
+    <g class="node ghost guard" id="n-council" data-build="council" tabindex="0" role="button">
+      <rect class="shape" x="810" y="26" width="180" height="56" rx="16"/>
+      <use href="#i-lock" class="ic" x="824" y="38" width="22" height="22"/>
+      <text class="nm" id="t-council" x="854" y="52" style="font-size: 13px;">+ Security Council</text>
+      <g id="g-clquorum" class="hide">
+        <rect x="934" y="58" width="42" height="18" rx="9" fill="none" stroke="#55499a"/>
+        <text x="955" y="71" text-anchor="middle" class="sub" style="fill: #a08bf8;">4/7</text>
+      </g>
+    </g>
+
+    <!-- ===== treasury ===== -->
+    <g class="node" id="n-treasury">
+      <rect class="shape" x="620" y="240" width="200" height="180" rx="16"/>
+      <use href="#i-vault" class="ic" x="638" y="258" width="24" height="24"/>
+      <text class="nm" x="672" y="276" style="font-size: 16px;">Treasury</text>
+      <text class="sub" id="t-owner" x="638" y="302">one key · no quorum</text>
+      <text id="t-val" x="638" y="334">$45,000,000</text>
+      <g class="asset">
+        <rect class="shape" x="638" y="348" width="82" height="24" rx="7"/>
+        <text x="648" y="364">5k ETH</text>
+      </g>
+      <g class="asset">
+        <rect class="shape" x="730" y="348" width="78" height="24" rx="7"/>
+        <text x="740" y="364">25M USDC</text>
+      </g>
+      <text class="sub" x="638" y="402" id="t-note"></text>
+    </g>
+  </svg>
+
+  <div class="ctrl">
+    <button type="button" class="reset" id="b-reset">start over</button>
+  </div>
+</div>
+<aside class="sim atk" id="console" aria-label="Attack simulator">
+  <div class="con-head">
+    <span class="eyebrow" id="con-eyebrow">Attack simulator</span>
+    <button type="button" class="con-back" id="con-back" hidden>‹ attack vectors</button>
+    <span class="con-status" id="con-status">ready</span>
+  </div>
+  <div id="atk-list">
+    <div class="flow" id="flow"><span class="flow-k">Default flow</span><span id="flow-t"></span></div>
+    <p class="con-intro">Pick an attack. Greyed vectors need a piece you have not built yet.</p>
+    <div class="atk-btns">
+      <button type="button" class="abtn" id="atk-frontend"><svg class="abtn-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-window"/></svg><span class="lbl" id="lbl-frontend">DeFi Frontend attack</span><span class="tag" id="tag-frontend" hidden>default flow</span><span class="why" id="why-frontend"></span></button>
+      <button type="button" class="abtn" id="atk-member"><svg class="abtn-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-key"/></svg><span class="lbl" id="lbl-member">Member key stolen</span><span class="tag" id="tag-member" hidden>default flow</span><span class="why" id="why-member"></span></button>
+      <button type="button" class="abtn" id="atk-owner1"><svg class="abtn-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-keys"/></svg><span class="lbl" id="lbl-owner1">Owner key stolen</span><span class="tag" id="tag-owner1" hidden>default flow</span><span class="why" id="why-owner1"></span></button>
+      <button type="button" class="abtn" id="atk-ownerN"><svg class="abtn-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-pen"/></svg><span class="lbl" id="lbl-ownerN">Owner signs a malicious transaction</span><span class="tag" id="tag-ownerN" hidden>default flow</span><span class="why" id="why-ownerN"></span></button>
+      <button type="button" class="abtn" id="atk-app"><svg class="abtn-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-server"/></svg><span class="lbl" id="lbl-app">Zodiac App hacked</span><span class="tag" id="tag-app" hidden>default flow</span><span class="why" id="why-app"></span></button>
+    </div>
+  </div>
+  <div id="atk-run" hidden>
+    <div class="con-title"><svg class="con-ic" viewBox="0 0 24 24" aria-hidden="true"><use id="con-title-ic" href="#i-window"/></svg><span id="con-title-t"></span></div>
+    <div class="con-body">
+      <ul id="atk-feed" aria-live="polite"></ul>
+      <div id="atk-result" class="hide" role="status"></div>
+      <div id="atk-hint"></div>
+    </div>
+    <div class="con-foot"><button type="button" class="reset" id="atk-share" hidden>share this run</button><button type="button" class="reset" id="atk-again" hidden>run again</button></div>
+  </div>
+</aside>
+</div>
+<div class="share" id="share" aria-label="Share the simulator">
+  <span class="eyebrow">Want to share?</span>
+  <a id="share-x" href="https://x.com/intent/post?text=Build%20a%20%2445M%20treasury%2C%20then%20try%20to%20break%20it.%20The%20Zodiac%20Simulator%3A&amp;via=zodiaceco" target="_blank" rel="noopener"><svg class="sic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-x"/></svg>Share on X</a>
+  <a id="share-li" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fzodiac.eco%2Fblog" target="_blank" rel="noopener"><svg class="sic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-li"/></svg>Share on LinkedIn</a>
+  <button type="button" id="share-copy"><svg class="sic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-link"/></svg>Copy link</button>
+</div>
+
+<div id="tip" class="hide" role="presentation"><span class="tip-k" id="tip-k"></span><span id="tip-t"></span></div>
+
+<div id="mo-overlay" class="hide">
+  <div class="mo" role="dialog" aria-modal="true" aria-labelledby="mo-title">
+    <h2 id="mo-title"></h2>
+    <div class="mo-sub" id="mo-sub"></div>
+    <div id="mo-body"></div>
+    <div class="mo-note" id="mo-note"></div>
+    <div class="mo-btns">
+      <button type="button" class="mo-btn cancel" id="mo-cancel">Cancel</button>
+      <button type="button" class="mo-btn save" id="mo-save">Sign the change</button>
+    </div>
+  </div>
+</div>
+<!-- /zsim -->
+    </div>
+  </div>
+
+  <p class="smallprint">Use on desktop. The numbers are illustrative; the enforcement model is not.</p>
+
+  <h2>Why the attacks fail, and the one that can succeed</h2>
+
+  <p><strong>Why the frontend attack, the stolen member key, and even our own hacked app all end at $0 once a policy exists:</strong> the <a href="https://docs.zodiac.eco/developers/roles">policies</a> you clicked together are not settings in an app. They are contract state on the treasury's own account, checked onchain at execution time, on every single call. A lying interface produces calldata the policy rejects. A stolen member key can only do what its role allows. With destinations pinned to the vault, everything it touches stays the vault's; leave a recipient list open, as the payroll policy lets you, and you lose exactly one allowance and nothing more. And our app can propose transactions all day; it cannot authorize one. There is no server in the trust path, including ours.</p>
+
+  <p><strong>Why the same frontend attack drains the bare setup:</strong> before a single policy exists, whoever holds the keys does routine work with full power over the vault. A poisoned interface only needs their signatures. Move routine actions into a role and the same attack hits a limit instead of a treasury.</p>
+
+  <p><strong>Why one stolen owner key does nothing, once there is a quorum:</strong> two of three, four of seven. One key is a paperweight. With a single-key wallet the same theft is the whole treasury, which is why the simulator starts there.</p>
+
+  <p><strong>Why one malicious signature session can drain the bare setup, and what stops it:</strong> when admins with direct ownership sign a malicious transaction, it executes immediately, and one transaction can move everything. A quorum does not prevent it: one owner proposes something that looks routine, the others sign because a signature is already there. The fix is structural, and you built it: move the owners into an operator vault so every change queues in a <a href="https://docs.zodiac.eco/developers/delay">public timelock</a>, and make a 4-of-7 security council the treasury's owner. Day to day it only watches: it can veto anything in the queue, and on the worst day it can withdraw everything to safety. Speed for the team, a public day for power, a council for the worst day. Each layer is one architectural decision on your account.</p>
+
+  <p>None of this structure is our invention. Separated functions, a timelock on privileged actions, thresholds matched to blast radius: that is what the <a href="https://frameworks.securityalliance.org/multisig-for-protocols/key-takeaways">SEAL framework prescribes</a>, and the council's 4-of-7 matches a threshold they suggest. One deliberate difference: their emergency paths do the minimum and never move funds. Ours can withdraw everything to safety, because the council is the owner. Whether you want that power is a decision you make when you set it up.</p>
+
+  <p><strong>And the part worth re-reading:</strong> none of it waits on us. If Zodiac the company disappeared tomorrow, every rule you clicked into place would keep enforcing itself, unchanged.</p>
+
+  <h2>Where we go deeper</h2>
+
+  <p>This post is the overview. Over the coming weeks we go deeper, one topic at a time. Some follow directly from the simulator, some go beyond it.</p>
+
+  <div class="parts">
+    <div class="part">
+      <span class="part-label">PART 2 · DRAFT YOUR OWN</span>
+      <p>The structure you clicked together, drafted for your own organization: a constellation repo, an AI-guided path from requirements to reviewable code, and the proof that writing the files is not authority. Signing is.</p>
+    </div>
+    <div class="part">
+      <span class="part-label">PART 3 · EXECUTION EFFICIENCY</span>
+      <p>The policies you built execute instantly for the people inside them. The deep dive goes further: record a permission by demonstrating it in the apps you already use, simulate it on a fork, and batch a whole workflow into one transaction. With real recorded flows.</p>
+    </div>
+    <div class="part">
+      <span class="part-label">PART 4 · AUDITABILITY WITHOUT A VENDOR</span>
+      <p>In the simulator, even our own hacked app could not touch the treasury. The deep dive shows why from the outside: read a live setup's policies off a block explorer, verify them without asking anyone, and put the exit question to any vendor.</p>
+    </div>
+    <div class="part">
+      <span class="part-label">PART 5 · LEAST PRIVILEGE</span>
+      <p>A stolen member key hit a wall of reverts. The full story: roles scoped to contracts, functions, amounts, and destinations, and blast radius as a design decision rather than a hope.</p>
+    </div>
+    <div class="part">
+      <span class="part-label">PART 6 · AGENTS UNDER MANDATE</span><span class="proposed-chip">proposed</span>
+      <p>The rebalancing agent's session key, taken seriously: budgets, expiries, and slippage bounds enforced by the account, not by the agent's good behavior.</p>
+    </div>
+  </div>
+
+  <h2>It exists as code</h2>
+
+  <p>The structure you built is not a slide. The simulator's organization exists as a public constellation repo, the same structure written in TypeScript, ready to fork: <a href="https://github.com/jomoormann/zodiac-sim-org-constellation">github.com/jomoormann/zodiac-sim-org-constellation</a>. A larger showcase across seven DeFi protocols lives at <a href="https://github.com/jomoormann/zodiac-demo-constellation">zodiac-demo-constellation</a>. Both use placeholder signers and deploy nothing. Part 2 shows how to draft your own.</p>
+
+  <p>Follow the series on <a href="https://x.com/zodiaceco">X</a>, or come talk to us on <a href="https://discord.gg/gnosisguild">Discord</a>.</p>
+
+  <div class="offer">
+    <p>And if you would rather not wait: we review setups personally. Thirty minutes, free, on a call. Your current access paths, what a leaked key could reach today, and what a role structure would look like for your operations. You keep the map whether or not you ever use Zodiac.</p>
+    <div class="links">
+      <a href="https://calendar.proton.me/bookings#CIEqv8uHWc0TcEx71Ug7m3bAx5dFmBjW6XNi1l7LrnI=">Book a review →</a>
+      <a href="https://app.zodiac.eco">Launch the app free →</a>
+    </div>
+  </div>
+
+</article>
+</div>
+
+<script>
+(function () {
+  const el = (id) => document.getElementById(id);
+  const instant = typeof window === 'undefined' ||
+    (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+  let S = null;
+  let playTimer = null;
+  let editing = null;
+  let temp = null;
+  let authTimers = [];
+
+  function clearAuth() { authTimers.forEach(clearTimeout); authTimers = []; }
+
+  function flashAuth(byOperator) {
+    clearAuth();
+    if (!byOperator) {
+      el('n-owners').setAttribute('class', 'node auth');
+      authTimers.push(setTimeout(render, 600));
+      return;
+    }
+    el('n-operator').setAttribute('class', 'node auth');
+    authTimers.push(setTimeout(() => {
+      el('n-operator').setAttribute('class', 'node');
+      el('n-tl').setAttribute('class', 'node edit ping');
+    }, 550));
+    authTimers.push(setTimeout(() => {
+      el('n-tl').setAttribute('class', 'node edit auth');
+    }, 3550));
+    authTimers.push(setTimeout(render, 4150));
+  }
+
+  const k = (n) => n >= 1000000 ? (n / 1000000) + 'M' : (n / 1000) + 'k';
+  const fmt = (n) => n.toLocaleString('en-US');
+
+  function reset() {
+    if (playTimer) { clearInterval(playTimer); playTimer = null; }
+    S = {
+      multisig: false, deposits: false, ben: false, ext: false, morpho: false, lido: false, payroll: false, teamwallets: false, rebalance: false, leak: 0,
+      operator: false, council: false,
+      log: [], verdict: null, tone: null, drained: false, won: false, busy: false, view: 'list', atk: null,
+      p: {
+        deposits: { amount: 100000, usd: true, vaultOnly: true, expiry: 'none', rate: 'none' },
+        payroll: { amount: 30000, rate: 'monthly' },
+        rebalance: { budget: 50000, slip: 1, expiry: 'friday', vaultOnly: true },
+        timelock: { dur: 24 },
+      },
+    };
+    editing = null; temp = null;
+    clearAtk();
+    el('atk-feed').innerHTML = '';
+    el('atk-result').setAttribute('class', 'hide');
+    el('atk-result').innerHTML = '';
+    el('atk-hint').textContent = '';
+    render(); closeEditor();
+  }
+
+  function log(text, cls) { S.log.push({ text, cls: cls || '' }); }
+
+  function heal() {
+    if (S.drained || S.leak) { S.drained = false; S.leak = 0; log('↺ rewound: treasury restored for another try.', ''); }
+    S.verdict = null; S.tone = null;
+  }
+
+  const BUILD_MSG = {
+    multisig: ['Upgraded to a 2-of-3 multisig: every action now needs two signatures. Full power, twice.'],
+    deposits: ['Deposits policy live: Ana can deposit into Aave within a weekly budget. Routine work leaves the owner keys.'],
+    ben: ['Ben joins the Deposits policy.'],
+    ext: ['External account added to Deposits: outside your org, inside your rules.'],
+    morpho: ['Morpho allowed in the Deposits policy.'],
+    lido: ['Lido allowed in the Deposits policy.'],
+    payroll: ['Payroll policy live: Mia can pay $30k a month. Recipients are unrestricted until you whitelist Team wallets.'],
+    teamwallets: ['Team wallets whitelisted: payroll can only ever pay the listed addresses.'],
+    rebalance: ['Rebalance policy live: agent-only, session key (v3).', '03:12 · agent swaps 0.4% off oracle → EXECUTES. 03:14 · tries 2.6% off → WithinRatio · REVERTS.'],
+    operator: ['Operator vault takes over governance: the owners move there and no longer own the treasury directly.', 'Every change now queues in a public timelock before it executes.'],
+    council: ['Security Council seated: it takes the treasury owner seat once the operator runs operations. Exit and withdraw all, plus a veto over the queue.'],
+  };
+
+  function activate(id) {
+    if (S.busy || S[id]) return;
+    heal();
+    if (id !== 'multisig' && !S.multisig) {
+      S.multisig = true;
+      BUILD_MSG.multisig.forEach((m, i) => log((i === 0 ? '+ ' : '') + m, 'good'));
+    }
+    if (id === 'teamwallets' && !S.payroll) {
+      S.payroll = true;
+      BUILD_MSG.payroll.forEach((m, i) => log((i === 0 ? '+ ' : '') + m, 'good'));
+    }
+    if (['ben', 'ext', 'morpho', 'lido'].indexOf(id) !== -1 && !S.deposits) {
+      S.deposits = true;
+      BUILD_MSG.deposits.forEach((m, i) => log((i === 0 ? '+ ' : '') + m, 'good'));
+    }
+    S[id] = true;
+    BUILD_MSG[id].forEach((m, i) => log((i === 0 ? '+ ' : '') + m, 'good'));
+    render(id);
+    flashAuth(S.operator && id !== 'operator');
+  }
+
+  /* ===== tooltips ===== */
+  function tipFor(id) {
+    const p = S.p, d = p.deposits, dur = p.timelock.dur;
+    switch (id) {
+      case 'ana': return S.deposits
+        ? { k: 'MEMBER', c: 'member', t: '<b>Ana</b> runs operations. Inside the Deposits policy she executes instantly; the account checks every call she makes, onchain.' }
+        : { k: 'ADD POLICY', c: 'policy', t: 'Adds the <b>Deposits</b> policy with <b>Ana</b> as its first member. Routine deposits move from the owner keys to a role with limits.' };
+      case 'ben': return S.ben
+        ? { k: 'MEMBER', c: 'member', t: '<b>Ben</b>, trading desk. Same Deposits role as Ana: instant execution, hard limits.' }
+        : { k: 'ADD MEMBER', c: 'member', t: 'Give <b>Ben</b> the Deposits role. One transaction to add, one to revoke.' };
+      case 'ext': return S.ext
+        ? { k: 'EXTERNAL MEMBER', c: 'member', t: 'An address outside your org holds the Deposits role. They got capability, not trust: identical onchain checks.' }
+        : { k: 'ADD EXTERNAL', c: 'member', t: 'Grant the role to an <b>outside address</b>: an advisor, a service. They get capability, not trust: identical onchain checks.' };
+      case 'deposits': return !S.deposits
+        ? { k: 'ADD POLICY', c: 'policy', t: '<b>Deposits</b>: members may deposit into allowed targets within a weekly budget, everything pinned to the vault. Until it exists, the owners do routine work themselves, with full power.' }
+        : { k: 'POLICY · CLICK TO EDIT', c: 'policy', t: 'Members may deposit into allowed targets, up to <b>$' + fmt(d.amount) + ' / week</b>' + (d.usd ? ', priced in USD across tokens <b>(v3)</b>' : '') + '. ' + (d.vaultOnly ? 'Everything returns to the vault.' : '<b>Withdrawals are open</b>: you edited this.') + (d.expiry !== 'none' ? ' Membership ' + (d.expiry === 'friday' ? 'ends Friday' : 'ends in 30 days') + ' (v3).' : '') };
+      case 'tAaveN': return S.deposits
+        ? { k: 'TARGET', c: 'target', t: '<b>Aave</b> is an allowed target of Deposits. supply() only: every other Aave function reverts.' }
+        : { k: 'ADD POLICY', c: 'target', t: '<b>Aave</b> becomes the first allowed target once the Deposits policy exists.' };
+      case 'morpho': return S.morpho
+        ? { k: 'TARGET', c: 'target', t: '<b>Morpho</b> is an allowed target of Deposits.' }
+        : { k: 'ADD TARGET', c: 'target', t: 'Allow <b>Morpho</b> in Deposits. A one-line policy update, signed by governance.' };
+      case 'lido': return S.lido
+        ? { k: 'TARGET', c: 'target', t: '<b>Lido</b> is an allowed target of Deposits.' }
+        : { k: 'ADD TARGET', c: 'target', t: 'Allow <b>Lido</b> in Deposits: staking becomes possible, nothing else changes.' };
+      case 'mia': return S.payroll
+        ? { k: 'MEMBER', c: 'member', t: '<b>Mia</b>, people ops. Holds the Payroll role and nothing else.' }
+        : { k: 'ADD POLICY', c: 'policy', t: 'Adds the <b>Payroll</b> policy with Mia as its member.' };
+      case 'payroll': return S.payroll
+        ? { k: 'POLICY · CLICK TO EDIT', c: 'policy', t: 'Mia pays the team: <b>$' + fmt(p.payroll.amount) + ' / month</b>, at most ' + (p.payroll.rate === 'monthly' ? 'one run per month' : 'one run per week') + ' <b>(v3 rate limit)</b>. ' + (S.teamwallets ? 'Recipients: <b>the whitelisted team wallets only</b>.' : '<b>Recipients unrestricted</b>: whitelist Team wallets to close that gap.') }
+        : { k: 'ADD POLICY', c: 'policy', t: '<b>Payroll</b>: Mia pays the team from the treasury, capped per month, rate-limited <b>(v3)</b>. Whitelist Team wallets to restrict recipients.' };
+      case 'tTeam': return S.teamwallets
+        ? { k: 'WHITELIST', c: 'target', t: 'The <b>team wallets</b> list: the only addresses Payroll can pay. Changing the list is a governance action.' }
+        : { k: 'ADD WHITELIST', c: 'target', t: 'Whitelist the recipients. Until you do, the payroll allowance can be sent <b>anywhere</b>, including to whoever holds a stolen key.' };
+      case 'agent': return S.rebalance
+        ? { k: 'MEMBER · AI', c: 'member', t: 'The <b>agent</b> holds a session key <b>(v3)</b>: budget-capped, expiring, revocable in one transaction. It can act at 3am; it cannot exceed the policy.' }
+        : { k: 'ADD POLICY', c: 'policy', t: 'Adds the <b>Rebalance</b> policy with an AI agent as its only member, on a session key <b>(v3)</b>.' };
+      case 'rebalance': return S.rebalance
+        ? { k: 'POLICY · CLICK TO EDIT', c: 'policy', t: 'Keeps ETH / USDC in range: swaps up to <b>$' + fmt(p.rebalance.budget) + ' / week</b>, every fill within <b>' + p.rebalance.slip + '%</b> of the oracle price <b>(v3 WithinRatio)</b>' + (p.rebalance.vaultOnly ? ', proceeds return to the vault' : ', <b>proceeds unrestricted</b>: you edited this') + (p.rebalance.expiry !== 'none' ? ', session ' + (p.rebalance.expiry === 'friday' ? 'ends Friday' : 'ends in 30 days') : '') + '.' }
+        : { k: 'ADD POLICY', c: 'policy', t: '<b>Rebalance</b>: an AI agent keeps the ETH / USDC ratio in range. Budget, expiry, and a slippage bound, all enforced by the account <b>(v3)</b>.' };
+      case 'tCow': return { k: 'TARGET', c: 'target', t: '<b>Cowswap</b>: where the agent may swap. Nowhere else.' };
+      case 'owners': return !S.multisig
+        ? { k: 'ONE KEY · CLICK TO UPGRADE', c: 'risk', t: 'A single signing key holds the whole treasury. Whatever it signs executes: <b>no quorum, no policy, no delay</b>. Click to upgrade to a 2-of-3 multisig.' }
+        : S.operator
+        ? { k: 'GOVERNANCE', c: 'member', t: 'Two of three humans. They sign from the <b>Operator vault</b> now; the treasury no longer answers to them directly.' }
+        : (S.deposits || S.payroll || S.rebalance
+          ? { k: 'GOVERNANCE', c: 'risk', t: 'Two of three humans sign policy and structure changes. Right now their word is law: <b>instant and silent</b>. That is the weak point.' }
+          : { k: 'GOVERNANCE', c: 'risk', t: 'Two of three humans sign everything, routine deposits included, with <b>full power</b> over the vault. Instant and silent. That is the weak point.' });
+      case 'operator': return S.operator
+        ? (S.council
+          ? { k: 'VAULT · OPERATES', c: 'member', t: 'The owners sign here (2/3). It acts on the treasury <b>through the timelock</b>: every change waits <b>' + dur + 'h in public</b>. The treasury itself is owned by the Security Council.' }
+          : { k: 'VAULT · OPERATES', c: 'member', t: 'The owners sign here (2/3). It acts on the treasury <b>through the timelock</b>: every change waits <b>' + dur + 'h in public</b>. Seat the Security Council to take the owner seat and the veto.' })
+        : { k: 'ADD VAULT', c: 'policy', t: 'A second safe that takes over operations. The owners move here, and every change they sign queues in a <b>public timelock</b> first.' };
+      case 'tl': return { k: 'DELAY MODIFIER · CLICK TO EDIT', c: 'policy', t: 'Every operator action waits <b>' + dur + ' hours</b> here, visible to everyone' + (S.council ? ', vetoable by the council.' : '. Nobody can veto it yet.') };
+      case 'council': return S.council
+        ? (S.operator
+          ? { k: 'OWNER · 4/7', c: 'guard', t: '<b>Owns the treasury.</b> As owner it can do anything it wants; the power that matters is <b>exit and withdraw all</b> assets to safety. It also <b>vetoes</b> anything suspicious in the operator queue, one transaction.' }
+          : { k: 'GUARDIAN · 4/7', c: 'guard', t: 'Holds the <b>exit</b>: it can withdraw all assets to safety at any time. Seat the Operator vault and the council takes the treasury\'s <b>owner seat</b>, with a queue to veto.' })
+        : { k: 'ADD COUNCIL', c: 'guard', t: 'A separate safe (<b>4 of 7</b> signers) that becomes the treasury\'s <b>owner</b>. As owner it can do anything, most importantly <b>exit and withdraw all</b> assets to safety, and <b>veto</b> anything suspicious in the queue.' };
+      case 'treasury': return S.drained
+        ? { k: 'VAULT · DRAINED', c: 'risk', t: 'The stress test emptied it. Click anything to rewind and keep building.' }
+        : { k: 'VAULT', c: 'member', t: 'Holds <b>$45M</b> in ETH and USDC. ' + (!S.multisig ? 'Held by <b>one key</b>: whatever it signs executes.' : S.council && S.operator ? '<b>Owned by the Security Council</b>; the Operator vault acts through the timelock.' : S.council ? 'Owned by the 2/3 owners; the council holds the exit.' : S.operator ? 'Run by the Operator vault through the timelock.' : 'Owned directly by the 2/3 owners.') + ' Assets and policies live here, onchain, as contract state: nothing depends on a vendor server.' };
+      default: return null;
+    }
+  }
+
+  function showTip(id, x, y) {
+    const tp = tipFor(id);
+    if (!tp) { hideTip(); return; }
+    const t = el('tip');
+    el('tip-k').textContent = tp.k;
+    el('tip-t').innerHTML = tp.t;
+    t.setAttribute('data-k', tp.c);
+    t.setAttribute('class', '');
+    moveTip(x, y);
+  }
+  function moveTip(x, y) {
+    const t = el('tip');
+    if (!t.getBoundingClientRect) return;
+    const r = t.getBoundingClientRect();
+    const vw = window.innerWidth, vh = window.innerHeight;
+    let left = x + 16, top = y + 18;
+    if (left + r.width > vw - 10) left = x - r.width - 14;
+    if (top + r.height > vh - 10) top = y - r.height - 14;
+    t.style.left = Math.max(8, left) + 'px';
+    t.style.top = Math.max(8, top) + 'px';
+  }
+  function hideTip() { el('tip').setAttribute('class', 'hide'); }
+
+  /* ===== editors ===== */
+  const EDITORS = {
+    deposits: {
+      title: 'Deposits policy',
+      rows: (p) => [
+        { t: 'range', f: 'amount', label: 'Budget per week', min: 25000, max: 500000, step: 25000, out: (v) => '$' + fmt(v), tag: 'v2' },
+        { t: 'check', f: 'usd', label: 'USD-priced across tokens', tag: 'v3' },
+        { t: 'check', f: 'vaultOnly', label: 'Withdrawals return to the vault', tag: 'v2' },
+        { t: 'select', f: 'expiry', label: 'Membership expiry', opts: [['none', 'no expiry'], ['friday', 'ends Friday'], ['30d', 'ends in 30 days']], tag: 'v3' },
+        { t: 'select', f: 'rate', label: 'Rate limit', opts: [['none', 'unlimited calls'], ['12', 'max 12 calls / week']], tag: 'v3' },
+      ],
+    },
+    payroll: {
+      title: 'Payroll policy',
+      rows: (p) => [
+        { t: 'range', f: 'amount', label: 'Budget per month', min: 10000, max: 100000, step: 5000, out: (v) => '$' + fmt(v), tag: 'v2' },
+        { t: 'select', f: 'rate', label: 'Rate limit', opts: [['monthly', 'one run / month'], ['weekly', 'one run / week']], tag: 'v3' },
+      ],
+    },
+    rebalance: {
+      title: 'Rebalance policy',
+      rows: (p) => [
+        { t: 'range', f: 'budget', label: 'Budget per week', min: 10000, max: 200000, step: 10000, out: (v) => '$' + fmt(v), tag: 'v2' },
+        { t: 'check', f: 'vaultOnly', label: 'Proceeds return to the vault', tag: 'v2' },
+        { t: 'select', f: 'slip', label: 'Slippage bound', opts: [['0.5', 'within 0.5% of oracle'], ['1', 'within 1.0% of oracle'], ['3', 'within 3.0% of oracle']], num: true, tag: 'v3' },
+        { t: 'select', f: 'expiry', label: 'Session expiry', opts: [['friday', 'ends Friday'], ['30d', 'ends in 30 days'], ['none', 'no expiry']], tag: 'v3' },
+      ],
+    },
+    timelock: {
+      title: 'Timelock',
+      rows: (p) => [
+        { t: 'select', f: 'dur', label: 'Queue duration', opts: [['12', '12 hours'], ['24', '24 hours'], ['48', '48 hours']], num: true, tag: 'dly' },
+      ],
+    },
+  };
+
+  function openEditor(key) {
+    if (S.busy) return;
+    hideTip();
+    editing = key;
+    temp = Object.assign({}, S.p[key]);
+    renderEditor();
+    el('mo-overlay').setAttribute('class', '');
+  }
+  function closeEditor() {
+    editing = null; temp = null;
+    el('mo-overlay').setAttribute('class', 'hide');
+  }
+  function setTemp(f, v) { if (temp) { temp[f] = v; renderEditor(); } }
+  function saveEditor() {
+    if (!editing) return;
+    heal();
+    S.p[editing] = temp;
+    if (editing === 'timelock') {
+      log('Timelock set to ' + S.p.timelock.dur + 'h (the change itself queued through the old delay first).', 'good');
+    } else if (S.operator) {
+      log('Policy update signed by the Operator vault · queued in public, executes in ' + S.p.timelock.dur + 'h.', 'good');
+    } else {
+      log('Policy update signed by the owners · applied instantly. No delay installed yet.', '');
+    }
+    closeEditor();
+    render();
+    flashAuth(S.operator);
+  }
+
+  function renderEditor() {
+    if (!editing) return;
+    const ed = EDITORS[editing];
+    el('mo-title').textContent = ed.title;
+    el('mo-sub').textContent = editing === 'timelock'
+      ? 'Sits on the operator path. Everything the operator vault signs waits here.'
+      : 'Every parameter below is enforced onchain, on every call.';
+    el('mo-body').innerHTML = ed.rows(temp).map((r) => {
+      const tag = '<span class="tag ' + (r.tag === 'dly' ? 'dly' : r.tag) + '">' + (r.tag === 'dly' ? 'delay mod' : r.tag) + '</span>';
+      if (r.t === 'range') {
+        return '<div class="mo-row"><span class="lab">' + r.label + ' ' + tag + '</span>' +
+          '<span class="mo-range"><output>' + r.out(temp[r.f]) + '</output>' +
+          '<input type="range" data-f="' + r.f + '" min="' + r.min + '" max="' + r.max + '" step="' + r.step + '" value="' + temp[r.f] + '"></span></div>';
+      }
+      if (r.t === 'check') {
+        return '<div class="mo-row"><span class="lab">' + r.label + ' ' + tag + '</span>' +
+          '<input type="checkbox" data-f="' + r.f + '"' + (temp[r.f] ? ' checked' : '') + '></div>';
+      }
+      const opts = r.opts.map(([v, l]) => '<option value="' + v + '"' + (String(temp[r.f]) === v ? ' selected' : '') + '>' + l + '</option>').join('');
+      return '<div class="mo-row"><span class="lab">' + r.label + ' ' + tag + '</span>' +
+        '<select data-f="' + r.f + '"' + (r.num ? ' data-num="1"' : '') + '>' + opts + '</select></div>';
+    }).join('');
+    el('mo-note').textContent = S.operator
+      ? 'Signing queues this change in the public timelock: live in ' + S.p.timelock.dur + 'h' + (S.council ? ', vetoable by the council.' : '. Nobody can veto it yet.')
+      : 'Signing applies this change instantly: the owners still hold the treasury directly.';
+  }
+
+  /* ===== attack simulator ===== */
+  let atkTimers = [];
+  function clearAtk() { atkTimers.forEach(clearTimeout); atkTimers = []; }
+
+  function fx(id, cls) { return () => el(id).setAttribute('class', cls); }
+
+  function buildAttack(key) {
+    const op = S.operator, cl = S.council, dur = S.p.timelock.dur, eoa = !S.multisig;
+    const gov = op ? 'n-operator' : 'n-owners';
+    const govName = op ? 'Operator vault admins' : 'vault owners';
+
+    if (key === 'frontend') {
+      if (!S.deposits) {
+        const base = [
+          { t: 'The Aave frontend is compromised. It now serves poisoned transactions.', cls: 'warn', do: fx('n-tAaveN', 'node chip ghost alarm') },
+          { t: eoa ? 'No roles, no quorum: the one key makes routine deposits itself, with full power over the vault.' : 'No roles yet: the ' + govName + ' make routine deposits themselves, with full power over the vault.', cls: 'warn', do: fx(gov, 'node alarm') },
+          { t: eoa ? "Behind the deposit button: an approval that hands the attacker the vault's USDC. One signature, and the screen was the only check." : "Behind the deposit button: an approval that hands the attacker the vault's USDC. Two admins sign what the screen shows.", cls: 'warn' },
+        ];
+        if (!op) return {
+          steps: base.concat([{ t: 'Nothing checks the calldata. The approval executes; the drain follows in the same minute.', cls: 'warn', do: fx('n-treasury', 'node drained') }]),
+          drain: true, sub: 'Full-power keys on a routine task. The screen was the only check.',
+          hint: eoa ? 'Upgrade to a multisig and add the Deposits policy so routine work runs through a role with limits, then run this again.' : 'Add the Deposits policy so routine work runs through a role with limits, then run this again.',
+        };
+        if (!cl) return {
+          steps: base.concat([
+            { t: 'It enters the ' + dur + 'h public timelock queue. Nobody holds a veto.', cls: 'warn', do: fx('n-tl', 'node edit ping') },
+            { t: 'The window passes. The approval executes; the drain follows.', cls: 'warn', do: fx('n-treasury', 'node drained') },
+          ]),
+          drain: true, sub: 'A queue nobody watches is just a delay.',
+          hint: 'Add the Security Council to hold the veto, or the Deposits policy so routine work never touches admin keys. Then run this again.',
+        };
+        return {
+          steps: base.concat([
+            { t: 'It enters the ' + dur + 'h public timelock queue.', cls: '', do: fx('n-tl', 'node edit ping') },
+            { t: 'The Security Council reads the queue: an approval to an unknown spender. One VETO.', cls: 'good', do: fx('n-council', 'node guard vflash') },
+          ]),
+          zero: true, sub: 'Caught in the queue. A role would have caught it at the call, without the wait.',
+          hint: 'Add the Deposits policy so routine deposits run through a role instead of the queue.',
+        };
+      }
+      return {
+      steps: [
+        { t: 'The Aave frontend is compromised. It now serves poisoned transactions.', cls: 'warn', do: fx('n-tAaveN', 'node chip alarm') },
+        { t: 'Ana opens it for her weekly deposit. Everything looks normal.', cls: '', do: fx('n-ana', 'node alarm') },
+        { t: "Behind the button: an approval that lets the attacker spend the vault's USDC. She signs.", cls: 'warn' },
+        { t: 'The account checks the real calldata, not the screen. Unknown spender → TransactionNotAllowed · REVERTS.', cls: 'good', do: fx('n-deposits', 'node edit auth') },
+        { t: "Second try: a real deposit, routed to the attacker's market. Wrong target → REVERTS.", cls: 'good' },
+      ],
+      zero: true, sub: 'The screen can say anything. The account reads the calldata.',
+      };
+    }
+
+    if (key === 'member') {
+      if (S.payroll) {
+        const amt = S.p.payroll.amount;
+        if (S.teamwallets) return {
+          steps: [
+            { t: "Mia's phone is compromised. Her payroll key is the attacker's now.", cls: 'warn', do: fx('n-mia', 'node alarm') },
+            { t: 'First move: send the whole payroll budget to their own address. → ConditionViolation · REVERTS. Not on the whitelist.', cls: 'good', do: fx('n-payroll', 'node edit auth') },
+            { t: 'Then: pay a listed team wallet, ten times the monthly budget. → WithinAllowance · REVERTS.', cls: 'good' },
+            { t: 'All the key can do is pay the team the agreed amount.', cls: 'good' },
+            { t: 'Monday: one transaction revokes the role.', cls: 'good', do: fx(gov, 'node auth') },
+          ],
+          zero: true, sub: 'A whitelist turns a stolen key into a very limited employee.',
+        };
+        return {
+          steps: [
+            { t: "Mia's phone is compromised. Her payroll key is the attacker's now.", cls: 'warn', do: fx('n-mia', 'node alarm') },
+            { t: 'First move: drain the treasury. → REVERTS. The role can only call transfer(), within the payroll allowance.', cls: 'good', do: fx('n-payroll', 'node edit auth') },
+            { t: "But the recipient is unrestricted. They send this month's budget, $" + fmt(amt) + ', to themselves. → EXECUTES.', cls: 'warn', do: fx('n-payroll', 'node edit alarm') },
+            { t: 'They wait for the refill. It never comes: Monday, the role is revoked.', cls: 'good', do: fx(gov, 'node auth') },
+          ],
+          zero: false, partial: true, amount: amt, sub: 'The allowance held. The recipient list was missing.',
+          hint: 'Select Team wallets as the payroll target to whitelist recipients, then run this again.',
+        };
+      }
+      const steps = [{ t: "Ana's laptop is compromised. Her signing key is the attacker's now.", cls: 'warn', do: fx('n-ana', 'node alarm') }];
+      if (!S.p.deposits.vaultOnly) steps.push({ t: 'Note: you opened withdrawals in the editor. This run assumes the default.', cls: 'warn' });
+      steps.push(
+        { t: 'First move: withdraw everything to their own wallet. → ConditionViolation · REVERTS. Pinned to the vault.', cls: 'good', do: fx('n-deposits', 'node edit auth') },
+        { t: "Stay inside the rules, then: deposit into a market the role doesn't list. → TransactionNotAllowed · REVERTS.", cls: 'good' },
+        { t: 'Last try: the allowed Aave pool, ten times the budget. → WithinAllowance · REVERTS.', cls: 'good' },
+        { t: "Anything the key can do moves the vault's money into the vault's own positions.", cls: 'good' },
+        { t: 'Monday: one transaction revokes the role. The key is worthless.', cls: 'good', do: fx(gov, 'node auth') }
+      );
+      return { steps, zero: true, sub: 'A stolen member key is an incident report, not an obituary.' };
+    }
+
+    if (key === 'owner1' && eoa) return {
+      steps: [
+        { t: "Your laptop is compromised. The one signing key is the attacker's now.", cls: 'warn', do: fx('n-owners', 'node alarm') },
+        { t: 'There is no second signature to wait for and no policy to pass. They sign a transfer of everything.', cls: 'warn' },
+        { t: 'It executes in the next block. Nobody was asked.', cls: 'warn', do: fx('n-treasury', 'node drained') },
+      ],
+      zero: false, drain: true, sub: 'One key is one point of failure.',
+      hint: 'Upgrade to a 2-of-3 multisig so a stolen key meets a quorum, then run this again.',
+    };
+    if (key === 'owner1') return {
+      steps: [
+        { t: 'One of the ' + govName + ' is phished. The attacker holds one key.', cls: 'warn', do: fx(gov, 'node alarm') },
+        { t: 'They sign a drain. The quorum needs 2 of 3. Nothing moves.', cls: 'good' },
+        { t: 'Add themselves as an owner? Needs the quorum. Nothing moves.', cls: 'good' },
+        { t: 'Lower the threshold? Same wall. Every safe change is a quorum decision.', cls: 'good' },
+        { t: 'The odd attempts get noticed. Key rotated. Incident over.', cls: 'good', do: fx(gov, 'node auth') },
+      ],
+      zero: true, sub: 'One key against a quorum is a key against a locked door.',
+    };
+
+    if (key === 'app') return {
+      steps: [
+        { t: 'Zodiac itself is breached: servers, frontend, all of it.', cls: 'warn' },
+        { t: 'A malicious app update ships. It waits for you to open it.', cls: 'warn' },
+        { t: (S.deposits || S.payroll || S.rebalance ? 'Your policies are contract state on your account, not on our servers.' : 'Your account and its rules are contract state onchain, not on our servers.') + ' The app can propose; it can never authorize.', cls: 'good', do: fx('n-treasury', 'node auth') },
+        { t: 'The poisoned proposal hits your wallet, which shows the real transfer. You decline.', cls: 'good', do: fx(gov, 'node auth') },
+        { t: 'Nothing to steal on our side. Your control never lived there.', cls: 'good' },
+      ],
+      zero: true, sub: 'Worst case: our website is down and someone tweets at us.',
+    };
+
+    // key === 'ownerN' : the signers sign a malicious transaction
+    if (eoa) return {
+      steps: [
+        { t: 'You are tricked into signing a malicious transaction: a poisoned address, a fake "verify your wallet" prompt, a batch with one extra call.', cls: 'warn', do: fx('n-owners', 'node alarm') },
+        { t: 'One signature is the whole authorization. Nothing sits between it and the vault.', cls: 'warn' },
+        { t: 'Full control changes hands. The treasury empties. One block, no alarms.', cls: 'warn', do: fx('n-treasury', 'node drained') },
+      ],
+      zero: false, drain: true, sub: 'The default flow of a single key: everything, every time.',
+      hint: 'Upgrade to a multisig, then add the Operator vault (timelock) and the Security Council. Then run this again.',
+    };
+    const first = op
+      ? { t: 'The Operator vault admins are tricked into signing a malicious transaction. Full quorum.', cls: 'warn', do: fx(gov, 'node alarm') }
+      : { t: 'One owner proposes a transaction that looks routine. The target is poisoned.', cls: 'warn', do: fx(gov, 'node alarm') };
+    if (!op) return {
+      steps: [first,
+        { t: 'The second owner sees a signature already on it and signs without reading the calldata. Quorum reached.', cls: 'warn' },
+        { t: cl ? 'No queue between the signatures and the vault. Your council has nothing to veto.' : 'No queue between the signatures and the vault.', cls: 'warn' },
+        { t: 'Full control changes hands. The treasury empties. One block, no alarms.', cls: 'warn' },
+      ],
+      zero: false, drain: true, sub: 'A quorum is only as careful as its least careful signer.',
+      hint: cl ? 'Add the Operator vault to put a timelock between signatures and the vault, then run this again.' : 'Add the Operator vault (timelock) and the Security Council, then run this again.',
+    };
+    if (!cl) return {
+      steps: [first,
+        { t: 'It enters the ' + dur + ' public hours of the timelock queue, in the open: an unlimited role for the attacker.', cls: 'warn', do: fx('n-tl', 'node edit ping') },
+        { t: 'The notification fires. Nobody holds a veto.', cls: 'warn' },
+        { t: 'The cooldown ends. It executes. Drained.', cls: 'warn' },
+      ],
+      zero: false, drain: true, sub: 'The window was open. Nobody was at it.',
+      hint: 'Add the Security Council to hold the veto, then run this again.',
+    };
+    return {
+      steps: [first,
+        { t: 'It enters the ' + dur + ' public hours of the timelock queue: an unlimited role for the attacker.', cls: 'warn', do: fx('n-tl', 'node edit ping') },
+        { t: 'The Security Council spots it within the hour.', cls: '', do: fx('n-council', 'node guard vflash') },
+        { t: 'One VETO transaction invalidates the whole queue.', cls: 'good', do: fx('n-council', 'node guard vflash') },
+        { t: 'Exit stayed in reserve, unused. Keys rotated. The fast lanes never paused.', cls: 'good' },
+      ],
+      zero: true, win: true, sub: 'The window did its job. The council did theirs.',
+    };
+  }
+
+  function celebrate() {
+    clearAuth();
+    el('n-treasury').setAttribute('class', 'node safe');
+    const pols = (S.deposits ? ['n-deposits'] : []).concat(S.payroll ? ['n-payroll'] : []).concat(S.rebalance ? ['n-rebalance'] : []);
+    pols.forEach((id, i) => authTimers.push(setTimeout(() => el(id).setAttribute('class', 'node edit auth'), 150 + i * 160)));
+    authTimers.push(setTimeout(render, 2400));
+  }
+
+  const ATK = { frontend: { icon: 'window' }, member: { icon: 'key' }, owner1: { icon: 'keys' }, ownerN: { icon: 'pen' }, app: { icon: 'server' } };
+  function atkName(key) {
+    const eoa = !S.multisig, op = S.operator;
+    switch (key) {
+      case 'frontend': return 'DeFi Frontend attack';
+      case 'member': return 'Member key stolen';
+      case 'owner1': return eoa ? 'Owner key stolen' : op ? 'One operator admin key stolen' : 'One owner key stolen';
+      case 'ownerN': return eoa ? 'Owner signs a malicious transaction' : op ? 'Operator admins sign a malicious transaction' : 'Quorum signs a malicious transaction';
+      default: return 'Zodiac App hacked';
+    }
+  }
+  const hasMember = () => !!(S.deposits || S.payroll);
+  const vectorAvailable = (key) => key === 'member' ? hasMember() : key === 'app' ? zodiacSetup() : true;
+  function flowText() {
+    if (!S.multisig) return 'One key signs everything. Every action is a full-power transaction.';
+    const roles = S.deposits || S.payroll || S.rebalance;
+    if (!roles) return S.operator ? 'Owners act through the operator vault: every action waits ' + S.p.timelock.dur + 'h in public.' : '2 of 3 owners sign every action, routine or not. Full power, twice.';
+    if (!S.operator) return 'Members act inside policies, instantly. Owners sign the rules, instantly.';
+    return 'Members act inside policies, instantly. Rule changes wait ' + S.p.timelock.dur + 'h in public' + (S.council ? ', and the council can veto.' : '.');
+  }
+  const defaultVector = () => (S.multisig && hasMember()) ? 'member' : 'ownerN';
+  let lastFlow = null;
+
+  function backToList() {
+    clearAtk(); clearAuth(); hideTip();
+    S.busy = false; S.view = 'list';
+    heal();
+    el('atk-feed').innerHTML = '';
+    el('atk-result').setAttribute('class', 'hide');
+    el('atk-result').innerHTML = '';
+    el('atk-hint').textContent = '';
+    render();
+  }
+
+  const zodiacSetup = () => !!(S.deposits || S.payroll || S.rebalance || S.operator || S.council);
+
+  function runAttack(key) {
+    if (S.busy) return;
+    if (!vectorAvailable(key)) return;
+    clearAtk(); clearAuth(); hideTip();
+    S.drained = false; S.leak = 0;
+    S.view = 'run'; S.atk = key;
+    el('atk-feed').innerHTML = '';
+    el('atk-result').setAttribute('class', 'hide');
+    el('atk-result').innerHTML = '';
+    el('atk-hint').textContent = '';
+    render();
+    const sc = buildAttack(key);
+    S.busy = true;
+    render();
+    const sp = el('simulator');
+    if (typeof window !== 'undefined' && sp.scrollIntoView) sp.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    const doStep = (st) => {
+      el('atk-feed').innerHTML += '<li class="' + (st.cls || '') + '">' + st.t + '</li>';
+      if (st.do) st.do();
+    };
+    const finish = () => {
+      S.busy = false;
+      if (sc.drain) S.drained = true;
+      if (sc.partial) S.leak = sc.amount;
+      if (sc.win) S.won = true;
+      render();
+      const cls = sc.zero ? 'zero' : sc.partial ? 'partial' : 'risk';
+      const stamp = sc.zero ? 'HACKER GOT · $0' : sc.partial ? 'HACKER GOT · $' + fmt(sc.amount) : 'EVERYTHING AT RISK · $45,000,000';
+      el('atk-result').setAttribute('class', 'res ' + cls);
+      el('atk-result').innerHTML = '<div class="stamp">' + stamp + '</div><div class="rsub">' + sc.sub + '</div>';
+      el('atk-hint').textContent = sc.hint || '';
+      if (sc.zero) celebrate();
+    };
+    if (instant) { sc.steps.forEach(doStep); finish(); return; }
+    sc.steps.forEach((st, i) => atkTimers.push(setTimeout(() => doStep(st), 300 + i * 950)));
+    atkTimers.push(setTimeout(finish, 300 + sc.steps.length * 950 + 350));
+  }
+
+  /* ===== share ===== */
+  function shareUrl() {
+    const loc = typeof window !== 'undefined' && window.location;
+    const base = loc && /^https?:/.test(loc.href) ? loc.origin + loc.pathname : 'https://zodiac.eco/blog';
+    return base + '#simulator';
+  }
+  function shareText() {
+    const done = S.view === 'run' && !S.busy && S.atk;
+    if (done && S.drained) return 'I built a $45M treasury in the Zodiac Simulator and one malicious signature drained it. Think you can do better?';
+    if (done && S.leak) return 'A stolen key walked off with $' + fmt(S.leak) + ' of my payroll allowance in the Zodiac Simulator. Build yours and try to break it:';
+    if (done) return 'The hacker got $0 out of my $45,000,000 treasury. Build yours in the Zodiac Simulator and try to break it:';
+    return 'Build a $45M treasury, then try to break it. The Zodiac Simulator:';
+  }
+  function refreshShare() {
+    const u = shareUrl();
+    el('share-x').setAttribute('href', 'https://x.com/intent/post?text=' + encodeURIComponent(shareText()) + '&url=' + encodeURIComponent(u) + '&via=zodiaceco');
+    el('share-li').setAttribute('href', 'https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(u));
+  }
+  const COPY_HTML = el('share-copy').innerHTML;
+  function copyLink() {
+    const u = shareUrl(); const b = el('share-copy');
+    const done = () => { b.textContent = 'copied ✓'; setTimeout(() => { b.innerHTML = COPY_HTML; }, 1600); };
+    const legacy = () => {
+      const ta = document.createElement('textarea'); ta.value = u; document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); } catch (e) { /* ignore */ }
+      document.body.removeChild(ta); done();
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(u).then(done, legacy); else legacy();
+  }
+  function shareRun() {
+    refreshShare();
+    const sh = el('share');
+    if (sh.scrollIntoView) sh.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    sh.setAttribute('class', 'share flash');
+    setTimeout(() => sh.setAttribute('class', 'share'), 1300);
+  }
+
+  /* ===== render ===== */
+  const NAMES = { ben: 'Ben', ext: 'External', morpho: 'Morpho', lido: 'Lido' };
+  function setNode(key, on, pop, extra) {
+    el('n-' + key).setAttribute('class', (extra || 'node') + (on ? '' : ' ghost') + (pop ? ' pop' : ''));
+    if (NAMES[key]) el('t-' + key).textContent = (on ? '' : '+ ') + NAMES[key];
+  }
+  function setEdge(id, cls) { el(id).setAttribute('class', 'edge ' + cls); }
+  function setLbl(id, show, cls) { el(id).setAttribute('class', 'lbl' + (cls ? ' ' + cls : '') + (show ? '' : ' hide')); }
+
+  function render(popped) {
+    const p = S.p;
+    hideTip();
+    clearAuth();
+    const ms = S.multisig;
+    el('n-owners').setAttribute('class', 'node' + (ms ? '' : ' upg') + (popped === 'multisig' ? ' pop' : ''));
+    el('ic-owners').setAttribute('href', ms ? '#i-keys' : '#i-key');
+    el('t-owners').textContent = ms ? 'Owners' : 'One key';
+    el('t-ownquorum').textContent = ms ? '2/3' : '1/1';
+    el('r-ownquorum').setAttribute('class', ms ? '' : 'ghostq');
+    el('t-ownquorum').setAttribute('class', 'sub' + (ms ? '' : ' ghostq'));
+    const dep = S.deposits, dpop = popped === 'deposits' ? ' pop' : '';
+    el('n-ana').setAttribute('class', 'node' + (dep ? '' : ' ghost') + dpop);
+    el('t-ana').textContent = dep ? 'Ana' : '+ Ana';
+    el('n-deposits').setAttribute('class', 'node' + (dep ? ' edit' : ' ghost') + dpop);
+    el('t-deposits').textContent = dep ? 'Deposits' : '+ Deposits';
+    el('ed-deposits').setAttribute('class', 'pen' + (dep ? '' : ' hide'));
+    el('n-tAaveN').setAttribute('class', 'node chip' + (dep ? '' : ' ghost') + dpop);
+    el('t-tAaveN').textContent = dep ? 'Aave' : '+ Aave';
+    setEdge('e-ana', dep ? '' : 'ghost');
+    setEdge('e-tAave', dep ? '' : 'ghost');
+    setEdge('e-gate-dep', dep ? 'thick' : 'ghost');
+
+    setNode('ben', S.ben, popped === 'ben');
+    setNode('ext', S.ext, popped === 'ext');
+    setNode('morpho', S.morpho, popped === 'morpho', 'node chip');
+    setNode('lido', S.lido, popped === 'lido', 'node chip');
+    setEdge('e-ben', S.ben ? '' : 'ghost');
+    setEdge('e-ext', S.ext ? '' : 'ghost');
+    setEdge('e-tMorpho', S.morpho ? '' : 'ghost');
+    setEdge('e-tLido', S.lido ? '' : 'ghost');
+
+    // deposits budget label
+    el('t-depsub').textContent = '$' + k(p.deposits.amount) + '/wk' + (p.deposits.vaultOnly ? ' → vault' : ' → OPEN');
+
+    // payroll cluster
+    const pay = S.payroll;
+    el('n-mia').setAttribute('class', 'node' + (pay ? '' : ' ghost') + (popped === 'payroll' ? ' pop' : ''));
+    el('t-mia').textContent = pay ? 'Mia' : '+ Mia';
+    el('n-payroll').setAttribute('class', 'node' + (pay ? ' edit' : ' ghost') + (popped === 'payroll' ? ' pop' : ''));
+    el('t-payroll').textContent = pay ? 'Payroll' : '+ Payroll';
+    const tw = S.teamwallets;
+    el('t-paysub').textContent = '$' + k(p.payroll.amount) + '/mo → ' + (tw ? 'team' : 'anyone');
+    el('t-paysub').setAttribute('class', 'sub' + (pay && !tw ? ' risk' : ''));
+    el('ed-payroll').setAttribute('class', 'pen' + (pay ? '' : ' hide'));
+    el('n-tTeam').setAttribute('class', 'node chip' + (tw ? '' : ' ghost') + (popped === 'teamwallets' ? ' pop' : ''));
+    el('t-tTeam').textContent = tw ? 'Team wallets' : '+ Team wallets';
+    setEdge('e-mia', pay ? '' : 'ghost');
+    setEdge('e-tTeam', tw ? '' : 'ghost');
+    setEdge('e-gate-pay', pay ? 'thick' : 'ghost');
+
+    // rebalance cluster
+    const rb = S.rebalance;
+    el('n-agent').setAttribute('class', 'node' + (rb ? '' : ' ghost') + (popped === 'rebalance' ? ' pop' : ''));
+    el('t-agent').textContent = rb ? 'Agent' : '+ Agent';
+    el('n-rebalance').setAttribute('class', 'node' + (rb ? ' edit' : ' ghost') + (popped === 'rebalance' ? ' pop' : ''));
+    el('t-rebalance').textContent = rb ? 'Rebalance' : '+ Rebalance';
+    el('t-rebsub').textContent = 'ETH⇄USDC ≤' + p.rebalance.slip + '% · $' + k(p.rebalance.budget) + '/wk';
+    el('ed-rebalance').setAttribute('class', 'pen' + (rb ? '' : ' hide'));
+    el('n-tCow').setAttribute('class', 'node chip' + (rb ? '' : ' ghost'));
+    el('t-tCow').textContent = rb ? 'Cowswap' : '+ Cowswap';
+    setEdge('e-agent', rb ? '' : 'ghost');
+    setEdge('e-tCow', rb ? '' : 'ghost');
+    setEdge('e-gate-reb', rb ? 'thick' : 'ghost');
+
+    // governance handover
+    const op = S.operator;
+    el('n-operator').setAttribute('class', 'node' + (op ? '' : ' ghost') + (popped === 'operator' ? ' pop' : ''));
+    el('t-operator').textContent = op ? 'Operator' : '+ Operator vault';
+    el('t-opsub').textContent = op ? 'queues · ' + p.timelock.dur + 'h' : 'moves the owners here';
+    el('g-opquorum').setAttribute('class', op ? '' : 'hide');
+    el('n-tl').setAttribute('class', op ? 'node edit' : 'node hide');
+    setEdge('e-own-direct', op ? 'govwarn hide' : 'govwarn');
+    setEdge('e-own-op', op ? 'gov' : 'ghost');
+    setEdge('e-op-t', op ? 'gov' : 'ghost');
+    el('l-tl24').textContent = p.timelock.dur + 'H · PUBLIC';
+    setLbl('l-tl24', op, '');
+    el('t-owner').textContent = !S.multisig ? 'one key · no quorum' : S.council ? (op ? 'owner: Security Council' : 'owners: 2/3 + council') : (op ? 'operator via timelock' : 'owners: 2/3 multisig');
+
+    // council relation (guardian violet)
+    const cl = S.council;
+    el('n-council').setAttribute('class', 'node guard' + (cl ? '' : ' ghost') + (popped === 'council' ? ' pop' : ''));
+    el('t-council').textContent = cl ? 'Security Council' : '+ Security Council';
+    setEdge('e-cx', cl ? 'veto' : (op ? 'vghost hide' : 'vghost'));
+    setEdge('e-cv', op ? (cl ? 'veto' : 'vghost') : 'vghost hide');
+    el('g-clquorum').setAttribute('class', cl ? '' : 'hide');
+    setLbl('l-exit', cl, 'veto');
+    setLbl('l-veto', cl && op, 'veto');
+
+    // treasury
+    el('t-val').textContent = S.drained ? '$0 · drained' : S.leak ? '$' + fmt(45000000 - S.leak) : '$45,000,000';
+    el('n-treasury').setAttribute('class', 'node' + (S.drained ? ' drained' : S.won ? ' won' : ''));
+    el('t-note').textContent = S.drained ? 'click anything to rewind' : S.leak ? 'payroll allowance leaked · click anything to rewind' : '';
+    el('sim-panel').setAttribute('class', 'sim' + (S.drained ? ' drainedfx' : S.leak ? ' leakfx' : ''));
+    const inRun = S.view === 'run';
+    el('con-status').textContent = S.busy ? 'running' : inRun ? 'done' : 'ready';
+    el('con-status').setAttribute('class', 'con-status' + (S.busy ? ' busy' : ''));
+    el('atk-list').hidden = inRun;
+    el('atk-run').hidden = !inRun;
+    el('con-eyebrow').hidden = inRun;
+    el('con-back').hidden = !inRun;
+    el('atk-again').hidden = !inRun || S.busy;
+    el('atk-share').hidden = !inRun || S.busy;
+    if (S.atk) {
+      el('con-title-t').textContent = atkName(S.atk);
+      el('con-title-ic').setAttribute('href', '#i-' + ATK[S.atk].icon);
+    }
+
+    const dv = defaultVector();
+    const why = { member: 'needs a policy', app: 'needs a Zodiac component' };
+    ['frontend', 'member', 'owner1', 'ownerN', 'app'].forEach((k2) => {
+      const ok = vectorAvailable(k2);
+      el('atk-' + k2).disabled = S.busy || !ok;
+      el('lbl-' + k2).textContent = atkName(k2);
+      el('why-' + k2).textContent = ok ? '' : why[k2];
+      el('tag-' + k2).hidden = k2 !== dv || !ok;
+    });
+    const ft = flowText();
+    if (ft !== el('flow-t').textContent) {
+      el('flow-t').textContent = ft;
+      if (lastFlow !== null) { el('flow').setAttribute('class', 'flow flash'); setTimeout(() => el('flow').setAttribute('class', 'flow'), 1300); }
+    }
+    lastFlow = ft;
+    el('zlogo').setAttribute('class', 'zlogo' + (zodiacSetup() ? ' on' : ''));
+    refreshShare();
+
+  }
+
+  /* ===== events ===== */
+  document.addEventListener('click', (e) => {
+    const bb = e.target.closest ? e.target.closest('[data-build]') : null;
+    if (bb && !S[bb.dataset.build]) { activate(bb.dataset.build); return; }
+    const eb = e.target.closest ? e.target.closest('[data-edit]') : null;
+    if (eb) {
+      const key = eb.dataset.edit;
+      if (key === 'timelock' && !S.operator) return;
+      if ((key === 'deposits' && !S.deposits) || (key === 'payroll' && !S.payroll) || (key === 'rebalance' && !S.rebalance)) return;
+      openEditor(key);
+    }
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { closeEditor(); return; }
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const b = e.target.closest ? e.target.closest('[data-build], [data-edit]') : null;
+    if (!b) return;
+    e.preventDefault();
+    const bk = b.dataset.build;
+    if (bk && !S[bk]) { activate(bk); return; }
+    const ek = b.dataset.edit;
+    if (!ek) return;
+    if (ek === 'timelock' && !S.operator) return;
+    if ((ek === 'deposits' && !S.deposits) || (ek === 'payroll' && !S.payroll) || (ek === 'rebalance' && !S.rebalance)) return;
+    openEditor(ek);
+  });
+  document.addEventListener('mouseover', (e) => {
+    const g = e.target.closest ? e.target.closest('.node') : null;
+    if (g && g.id && g.id.startsWith('n-')) showTip(g.id.slice(2), e.clientX, e.clientY);
+    else hideTip();
+  });
+  document.addEventListener('mousemove', (e) => {
+    const t = el('tip');
+    if (t.getAttribute && t.getAttribute('class') !== 'hide') moveTip(e.clientX, e.clientY);
+  });
+  document.addEventListener('mouseleave', hideTip);
+  el('mo-overlay').addEventListener('click', (e) => { if (e.target === el('mo-overlay')) closeEditor(); });
+  el('mo-cancel').addEventListener('click', closeEditor);
+  el('mo-save').addEventListener('click', saveEditor);
+  el('mo-body').addEventListener('input', (e) => {
+    const t = e.target;
+    if (!t.dataset || !t.dataset.f) return;
+    if (t.type === 'range') setTemp(t.dataset.f, Number(t.value));
+    else if (t.type === 'checkbox') setTemp(t.dataset.f, t.checked);
+    else setTemp(t.dataset.f, t.dataset.num ? Number(t.value) : t.value);
+  });
+  el('mo-body').addEventListener('change', (e) => {
+    const t = e.target;
+    if (!t.dataset || !t.dataset.f) return;
+    if (t.tagName === 'SELECT') setTemp(t.dataset.f, t.dataset.num ? Number(t.value) : t.value);
+  });
+  ['frontend', 'member', 'owner1', 'ownerN', 'app'].forEach((k2) => el('atk-' + k2).addEventListener('click', () => runAttack(k2)));
+  el('b-reset').addEventListener('click', reset);
+  el('con-back').addEventListener('click', backToList);
+  el('atk-again').addEventListener('click', () => { if (S.atk) runAttack(S.atk); });
+  el('atk-share').addEventListener('click', shareRun);
+  el('share-copy').addEventListener('click', copyLink);
+  if (typeof window !== 'undefined' && (window.location.hash === '#simulator' || /[?&]simulator(=|&|$)/.test(window.location.search))) {
+    setTimeout(() => { const r = el('simulator'); if (r.scrollIntoView) r.scrollIntoView({ block: 'start' }); }, 60);
+  }
+
+  reset();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>From five signatures to one, without giving up control</title>
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  /* Replicates deployables/website styling: app.css tokens + BlogPostLayout + .prose-blog */
+  :root {
+    --brand: #469ced;
+    --brand-light: #b1d3f2;
+    --brand-dark: #286cb2;
+    --ink: #0b1a3d;
+    --zinc-200: #e4e4e7;
+    --zinc-500: #71717a;
+    --zinc-700: #3f3f46;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #ffffff;
+    color: var(--ink);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    font-feature-settings: 'ss01', 'cv11';
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3 { font-family: 'Schibsted Grotesk', Inter, ui-sans-serif, system-ui, sans-serif; }
+  .container { max-width: 48rem; margin: 0 auto; padding: 0 24px; }
+
+  .post-head { padding: 112px 0 48px; }
+  .backlink { font-size: 14px; color: var(--brand-dark); text-decoration: none; }
+  .backlink:hover { text-decoration: underline; }
+  .eyebrow-b {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--brand-dark); margin-top: 24px;
+  }
+  .eyebrow-b::before { content: ""; width: 4px; height: 4px; border-radius: 50%; background: var(--brand); }
+  .post-head h1 {
+    margin: 24px 0 0;
+    font-size: clamp(34px, 5vw, 46px);
+    font-weight: 600; line-height: 1.08; letter-spacing: -0.025em;
+    color: var(--ink); text-wrap: balance;
+  }
+  .post-meta {
+    margin-top: 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px;
+    font-size: 14px; color: var(--zinc-500);
+  }
+
+  .prose-blog { color: var(--zinc-700); font-size: 1.0625rem; line-height: 1.7; padding-bottom: 96px; }
+  .prose-blog > * + * { margin-top: 1.5em; }
+  .prose-blog h2 {
+    color: var(--ink); margin-top: 2.5em; font-size: 1.75rem; font-weight: 600;
+    line-height: 1.2; letter-spacing: -0.02em; text-wrap: balance;
+  }
+  .prose-blog a { color: var(--brand-dark); text-decoration: none; text-underline-offset: 2px; }
+  .prose-blog a:hover { text-decoration: underline; }
+  .prose-blog strong { color: var(--ink); font-weight: 600; }
+  .prose-blog ul { list-style: disc; padding-left: 1.5rem; }
+  .prose-blog li + li { margin-top: 0.5rem; }
+
+  .smallprint { font-size: 13px; color: var(--zinc-500); }
+
+  .offer {
+    border: 1px solid var(--brand-light); background: #f0f7fd; border-radius: 12px;
+    padding: 26px 28px;
+  }
+  .offer p { margin: 0; color: var(--ink); }
+  .offer .links { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 15px; }
+
+  .breakout { width: min(62rem, calc(100vw - 40px)); margin-left: 50%; transform: translateX(-50%); }
+
+
+  /* ===== shared ink panel (matches the simulator's visual language) ===== */
+  .zpanel {
+    --zbg: #081226; --zpanelc: #0b1a3d; --zcard: #12244d; --zedge: #2b4472;
+    --zink: #eaf2fb; --zmut: #9db8d9; --zdim: #6292cf; --zbrand: #469ced; --zbl: #b1d3f2;
+    --zsand: #cea491; --zauth: #52d98b; --zping: #e8c35a;
+    background: radial-gradient(120% 120% at 30% 20%, #122450 0%, #0b1a3d 100%);
+    border: 1.5px solid #22375f; border-radius: 24px; padding: 22px 24px;
+    color: var(--zink); font-size: 14px; line-height: 1.5;
+  }
+  .zpanel .zeyebrow {
+    font-family: 'JetBrains Mono', Menlo, monospace; font-size: 11px; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--zdim);
+  }
+  .zpanel .zplay {
+    font-family: 'JetBrains Mono', Menlo, monospace; font-size: 12px; cursor: pointer;
+    border-radius: 999px; padding: 7px 16px; background: rgba(70, 156, 237, 0.14);
+    border: 1px solid var(--zbrand); color: var(--zink);
+  }
+  .zpanel .zplay:disabled { opacity: 0.4; cursor: default; }
+  .zpanel .zplay:focus-visible { outline: 2px solid var(--zbrand); outline-offset: 2px; }
+  .zpanel .ztop { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+
+  /* --- cart: one workflow, three interfaces, one signature --- */
+  .cart-stages { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
+  .cart-stage {
+    font-family: 'JetBrains Mono', Menlo, monospace; font-size: 11px; letter-spacing: 0.05em;
+    border: 1px solid var(--zedge); color: var(--zdim); border-radius: 999px; padding: 5px 12px;
+    cursor: pointer; background: none;
+  }
+  .cart-stage[aria-current="true"] { border-color: var(--zbrand); color: var(--zink); background: rgba(70, 156, 237, 0.14); }
+  .cart-stage.donechip { color: var(--zauth); border-color: #2e6b4f; }
+  .cart-body { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; position: relative; }
+  @media (max-width: 720px) { .cart-body { grid-template-columns: 1fr; } }
+  .dapp, .pilot {
+    background: var(--zcard); border: 1px solid var(--zedge); border-radius: 12px; min-height: 330px;
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .dapp .bar {
+    font-family: 'JetBrains Mono', Menlo, monospace; font-size: 11px; color: var(--zdim);
+    border-bottom: 1px solid #223a63; padding: 9px 14px; display: flex; gap: 6px; align-items: center;
+  }
+  .dapp .bar .dot { width: 7px; height: 7px; border-radius: 50%; background: #223a63; }
+  .dapp .bar .via { margin-left: auto; color: var(--zbrand); white-space: nowrap; }
+  .dapp .screen { display: flex; flex-direction: column; flex: 1; }
+  .dapp .screen.in { animation: screenin 0.4s ease-out; }
+  @keyframes screenin { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: none; } }
+  .dapp .brand {
+    padding: 16px 16px 0; display: flex; align-items: center; gap: 9px;
+    font-family: 'Schibsted Grotesk', Inter, sans-serif; font-size: 16px; font-weight: 600; color: var(--zink);
+  }
+  .dapp .brand i { width: 11px; height: 11px; border-radius: 50%; background: var(--bc); box-shadow: 0 0 9px var(--bc); }
+  .dapp .brand .sub { margin-left: auto; font-family: 'JetBrains Mono', Menlo, monospace; font-size: 10.5px; color: var(--zdim); font-weight: 400; }
+  .dapp .form { padding: 12px 16px 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .dapp .field {
+    background: #0d1c3e; border: 1px solid var(--zedge); border-radius: 10px; padding: 9px 12px;
+    display: flex; justify-content: space-between; align-items: baseline; gap: 10px;
+    opacity: 0.22; transition: opacity 0.3s ease;
+  }
+  .dapp .field.on { opacity: 1; }
+  .dapp .field .lab { font-family: 'JetBrains Mono', Menlo, monospace; font-size: 10.5px; color: var(--zdim); letter-spacing: 0.06em; text-transform: uppercase; }
+  .dapp .field .val { font-family: 'Schibsted Grotesk', Inter, sans-serif; font-size: 19px; color: var(--zink); margin-left: auto; }
+  .dapp .field .tok { font-family: 'JetBrains Mono', Menlo, monospace; font-size: 11.5px; color: var(--zmut); min-width: 52px; text-align: right; }
+  .dapp .cta {
+    margin-top: auto; border-radius: 10px; padding: 11px; text-align: center; font-weight: 600; font-size: 14px;
+    background: var(--bc); color: #081226; opacity: 0.3; transition: opacity 0.3s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .dapp .cta.on { opacity: 1; }
+  .dapp .cta.pressed { transform: scale(0.97); box-shadow: 0 0 22px var(--bc); }
+  .dapp .done { padding: 40px 20px; text-align: center; margin: auto 0; }
+  .dapp .done .big { font-family: 'Schibsted Grotesk', Inter, sans-serif; font-size: 20px; color: var(--zink); font-weight: 600; }
+  .dapp .done .sm { font-size: 12.5px; color: var(--zmut); margin-top: 8px; }
+  .flychip {
+    position: absolute; z-index: 3; pointer-events: none;
+    font-family: 'JetBrains Mono', Menlo, monospace; font-size: 11px; background: #0d1c3e;
+    border: 1px solid var(--zbrand); color: var(--zbl); border-radius: 999px; padding: 5px 11px; white-space: nowrap;
+    animation: fly 0.65s cubic-bezier(0.4, 0, 0.6, 1) forwards;
+  }
+  @keyframes fly { from { transform: translate(0, 0) scale(1); opacity: 1; } to { transform: translate(var(--dx), var(--dy)) scale(0.7); opacity: 0.15; } }
+  .pilot .phead {
+    display: flex; justify-content: space-between; align-items: center; padding: 9px 14px;
+    border-bottom: 1px solid #223a63; font-family: 'JetBrains Mono', Menlo, monospace;
+    font-size: 10.5px; letter-spacing: 0.13em; text-transform: uppercase; color: var(--zdim);
+  }
+  .pilot .badge { border: 1px solid var(--zedge); color: var(--zink); border-radius: 999px; padding: 2px 9px; letter-spacing: 0.04em; text-transform: none; transition: border-color 0.3s ease; }
+  .pilot .badge.has { border-color: var(--zbrand); }
+  .pilot .items { list-style: none; margin: 0; padding: 12px 14px 0; display: flex; flex-direction: column; gap: 8px; min-height: 132px; }
+  .pilot .empty { font-size: 12.5px; color: var(--zdim); padding: 6px 2px; }
+  .pilot .item {
+    background: #0d1c3e; border: 1px solid var(--zedge); border-radius: 9px; padding: 8px 11px;
+    display: grid; grid-template-columns: 16px 1fr auto; gap: 9px; align-items: start;
+  }
+  .pilot .item.fresh { animation: itemin 0.35s ease-out; }
+  @keyframes itemin { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+  .pilot .item .n { font-family: 'JetBrains Mono', Menlo, monospace; font-size: 11px; color: var(--zdim); padding-top: 2px; }
+  .pilot .item .what { font-size: 12.5px; color: var(--zink); }
+  .pilot .item .where { font-family: 'JetBrains Mono', Menlo, monospace; font-size: 10.5px; color: var(--zdim); margin-top: 2px; }
+  .pilot .item .chips { display: flex; flex-direction: column; gap: 3px; align-items: flex-end; }
+  .pilot .chip { font-family: 'JetBrains Mono', Menlo, monospace; font-size: 10px; border-radius: 999px; padding: 2px 8px; border: 1px solid var(--zedge); color: var(--zdim); white-space: nowrap; }
+  .pilot .chip.sim { color: var(--zauth); border-color: #2e6b4f; }
+  .pilot .chip.role { color: var(--zbrand); border-color: var(--zbrand); }
+  .pilot .ledger { margin: 12px 14px 0; border-top: 1px dashed var(--zedge); padding-top: 10px; font-family: 'JetBrains Mono', Menlo, monospace; font-size: 11px; color: var(--zmut); }
+  .pilot .ledger .lab { color: var(--zdim); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 5px; display: flex; justify-content: space-between; }
+  .pilot .ledger .lab .mode { color: var(--zsand); }
+  .pilot .ledger .lab .mode.live { color: var(--zauth); }
+  .pilot .ledger .row { display: flex; justify-content: space-between; gap: 10px; padding: 2px 0; font-variant-numeric: tabular-nums; }
+  .pilot .ledger .row .d { color: var(--zauth); min-width: 72px; text-align: right; }
+  .pilot .ledger .row .d.neg { color: var(--zsand); }
+  .pilot .checkout {
+    margin: 12px 14px 14px; border-radius: 10px; padding: 11px; text-align: center; font-weight: 600; font-size: 14px;
+    background: rgba(70, 156, 237, 0.14); border: 1px solid var(--zbrand); color: var(--zink);
+    opacity: 0.3; transition: opacity 0.3s ease, background 0.3s ease, border-color 0.3s ease;
+  }
+  .pilot .checkout.on { opacity: 1; }
+  .pilot .checkout.done { background: rgba(82, 217, 139, 0.1); border-color: var(--zauth); color: var(--zauth); font-family: 'JetBrains Mono', Menlo, monospace; font-size: 12.5px; font-weight: 500; }
+  .cart-foot { margin-top: 12px; font-size: 11.5px; color: var(--zdim); font-family: 'JetBrains Mono', Menlo, monospace; }
+
+  /* --- video slot --- */
+  .vid {
+    position: relative; aspect-ratio: 16 / 9; border-radius: 14px; overflow: hidden;
+    background: linear-gradient(140deg, #0d1f44 0%, #081226 70%);
+    border: 1px solid var(--zedge); display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 10px;
+  }
+  .vid .tri {
+    width: 64px; height: 64px; border-radius: 50%; border: 2px solid var(--zbl);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .vid .tri::after { content: ""; border-style: solid; border-width: 11px 0 11px 18px; border-color: transparent transparent transparent var(--zbl); margin-left: 5px; }
+  .vid .vlabel { font-family: 'JetBrains Mono', Menlo, monospace; font-size: 12px; letter-spacing: 0.08em; color: var(--zmut); }
+</style>
+</head>
+<body>
+<header class="post-head">
+  <div class="container">
+    <div><a class="backlink" href="https://zodiac.eco/blog">← Back to blog</a></div>
+    <span class="eyebrow-b">Highlight series · Part 3</span>
+    <h1>From five signatures to one, without giving up control</h1>
+    <div class="post-meta">
+      <time datetime="2026-09-22">September 22, 2026</time>
+      <span>·</span>
+      <span>Jan-Felix Schwarz</span>
+      <span>·</span>
+      <span>7 min read</span>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+<article class="prose-blog">
+
+  <p>A routine treasury action carries a hidden price: the ceremony. Propose it, ping the second signer, wait out a time zone, chase the third, execute a day later into a price that has moved. The action was never the hard part. The coordination was.</p>
+
+  <p>On Zodiac, routine work runs differently: one team member, one signature, executed immediately, inside limits the account enforces on every single call. The full quorum still exists, but it signs the rules, not every use of them. If you played the simulator in Part 1, you built exactly this split.</p>
+
+  <p>This part is about making that one signature not just safe, but genuinely fast. It is the part where you meet the <a href="https://docs.zodiac.eco/guides/install-pilot">browser extension</a>.</p>
+
+  <h2>One signature, inside hard limits</h2>
+
+  <p>Take Ana's Deposits policy from the simulator: $100,000 a week, into approved protocols only, everything returning to the vault. Inside those limits she moves at the speed of any hot wallet. Outside them, every transaction reverts before it can matter. The quorum is for changing the rules; the fast lane is for using them.</p>
+
+  <h2>The extension</h2>
+
+  <p>Zodiac Pilot sits in your browser and connects to your organization's vault like a wallet. You open the interfaces your team already uses, Aave, Uniswap, Lido, whatever the workflow touches, and do the work the way you always do. Pilot handles everything between your click and the chain:</p>
+
+  <ul>
+    <li><strong>Record.</strong> Nothing is sent onchain while you work. Pilot captures the exact contract calls each interface produces.</li>
+    <li><strong>Batch, across frontends.</strong> Claim rewards on one app, swap them on a second, deposit the result on a third. Pilot collects every step into a single atomic transaction: if any call fails, all of it reverts. No stranded funds halfway through a workflow.</li>
+    <li><strong>Simulate.</strong> Before anything is real, the batch runs against a fork of current chain state. You see which tokens move, how balances change, and whether your policy allows every call. Surprises happen in the fork, not in the treasury.</li>
+    <li><strong>Find the route.</strong> When more than one of your roles could carry a call, Pilot checks the permission paths and picks one that clears. You do not think about which role you are wearing.</li>
+    <li><strong>Sign once.</strong> One signature executes the whole batch through the policy check. And when a recording contains something your role does not allow yet, one click turns it into a permission request for the owners to sign: the recording is the specification.</li>
+  </ul>
+
+  <p>That last point deserves to be seen rather than described. The sequence below is stylised, but every step is what Pilot does. Ana works through three interfaces the way she always would: a swap on Uniswap, a stake on Lido, a deposit on Aave. Each action lands in the batch like an item in a cart, the batch is simulated and checked against her role as it grows, and one signature executes all of it.</p>
+
+  <div class="breakout">
+    <div class="zpanel" id="cart">
+      <div class="ztop">
+        <span class="zeyebrow">One workflow · three interfaces · one signature</span>
+        <button type="button" class="zplay" id="cart-play">play</button>
+      </div>
+      <div class="cart-stages" id="cart-stages"></div>
+      <div class="cart-body" id="cart-body">
+        <div class="dapp" id="dapp">
+          <div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span>&nbsp;<span id="dapp-url">app.uniswap.org</span><span class="via">connected as the vault · via Pilot</span></div>
+          <div class="screen" id="dapp-screen"></div>
+        </div>
+        <div class="pilot" id="pilot" aria-live="polite">
+          <div class="phead"><span>Zodiac Pilot · batch</span><span class="badge" id="cart-count">empty</span></div>
+          <ol class="items" id="cart-items"></ol>
+          <div class="ledger" id="cart-ledger"></div>
+          <div class="checkout" id="cart-checkout">Sign once</div>
+        </div>
+      </div>
+      <div class="cart-foot">Stylised interfaces, illustrative amounts. Balances are simulated on a fork until the signature; nothing moves before it.</div>
+    </div>
+  </div>
+
+  <p>Notice what the role pins down at every step: the swap's recipient is the vault, the staking token is minted to the vault, and the supply is made on behalf of the vault. Ana can move the treasury's money between the treasury's own positions, and nowhere else. The permission is exactly as wide as the work, and no wider.</p>
+
+  <h2>Watch it run</h2>
+
+  <p>The clip below shows the full loop in real time: recording a multi-app workflow, simulating the batch, and executing it with one signature.</p>
+
+  <div class="breakout">
+    <div class="vid" role="img" aria-label="Video: the Pilot batching flow, about 45 seconds.">
+      <div class="tri"></div>
+      <div class="vlabel">VIDEO · THE BATCHING FLOW · ~45s</div>
+      <div class="vlabel" style="color: #6f83a3;">coming soon</div>
+    </div>
+  </div>
+
+  <h2>What this changes for a team</h2>
+
+  <ul>
+    <li><strong>Time.</strong> Multi-step workflows execute in one go instead of five signing rounds, and permission setup drops from an engineering task to a screen recording.</li>
+    <li><strong>Certainty.</strong> Simulation shows the exact outcome and the policy check runs before execution. A revert costs a simulation, not gas and an awkward message in the group chat.</li>
+    <li><strong>Exactness without the pain.</strong> Permissions match what your team actually does, because they are derived from what your team actually did.</li>
+    <li><strong>The guardrails stay on.</strong> Everything Pilot executes still passes through the Roles check onchain. Recording makes permissions easy to create, not easy to escape.</li>
+  </ul>
+
+  <p><a href="https://docs.zodiac.eco/guides/install-pilot">Pilot</a> runs in Chrome and Chromium browsers, works with any dapp interface, and needs no integration from the dapp's side.</p>
+
+  <p>Next in the series: what happens when you stop trusting the tooling entirely, including ours. Part 4 reads a live setup's policies straight off a block explorer and asks every vendor the exit question.</p>
+
+  <div class="offer">
+    <p>The fastest way to understand Pilot is to watch it record your own workflow. We review setups personally: thirty minutes, free, on a call, and we can walk your routine actions and what a role structure would look like for them. You keep the map whether or not you ever use Zodiac.</p>
+    <div class="links">
+      <a href="https://calendar.proton.me/bookings#CIEqv8uHWc0TcEx71Ug7m3bAx5dFmBjW6XNi1l7LrnI=">Book a review →</a>
+      <a href="https://app.zodiac.eco">Sign up free and try Pilot →</a>
+    </div>
+  </div>
+
+</article>
+</div>
+
+<script>
+(function () {
+  const el = (id) => document.getElementById(id);
+  const instant = typeof window === 'undefined' ||
+    (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+  /* ===== cart: one workflow, three interfaces, one signature ===== */
+  const APPS = [
+    { url: 'app.uniswap.org', name: 'Uniswap', sub: 'v3 · Ethereum', color: '#fc72ff',
+      fields: [['Sell', '50,000', 'USDC'], ['Buy', '12.5', 'ETH']], cta: 'Swap',
+      item: 'Swap 50,000 USDC → 12.5 ETH', where: 'Uniswap v3', role: 'recipient → vault',
+      delta: { USDC: -50000, ETH: 12.5 } },
+    { url: 'stake.lido.fi', name: 'Lido', sub: 'stake · wrap', color: '#00a3ff',
+      fields: [['Stake', '12.5', 'ETH'], ['You receive', '10.6', 'wstETH']], cta: 'Stake',
+      item: 'Stake 12.5 ETH → 10.6 wstETH', where: 'Lido · wrapped stETH', role: 'minted to vault',
+      delta: { ETH: -12.5, wstETH: 10.6 } },
+    { url: 'app.aave.com', name: 'Aave', sub: 'v3 · Ethereum', color: '#b6509e',
+      fields: [['Supply', '10.6', 'wstETH'], ['Supply APY', '2.1%', 'illustrative']], cta: 'Supply',
+      item: 'Supply 10.6 wstETH', where: 'Aave v3 · lending pool', role: 'onBehalfOf → vault',
+      delta: { wstETH: -10.6, aWstETH: 10.6 } },
+  ];
+  const START = { USDC: 25000000, ETH: 5000, wstETH: 0, aWstETH: 0 };
+  const LEDGER_ROWS = [['USDC', 'USDC'], ['ETH', 'ETH'], ['wstETH', 'wstETH'], ['aWstETH', 'aEthwstETH (Aave)']];
+  const STAGE_NAMES = ['UNISWAP', 'LIDO', 'AAVE', 'SIGN ONCE'];
+  // phases inside an app stage: 0 screen · 1 fields · 2 press · 3 flying · 4 recorded · 5 simulated · 6 role
+  const PHASE_AT = [0, 500, 1300, 1600, 2250, 2800, 3300];
+  const STAGE_MS = 3900;
+  let cs = { stage: -1, phase: 0, signed: false };
+  let cartTimers = [];
+
+  const num = (n, dec) => n.toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+  const cls = (base, on, name) => base + (on ? ' ' + name : '');
+
+  function itemState(i) {
+    if (cs.stage > i) return 6;
+    if (cs.stage === i) return cs.phase;
+    return -1;
+  }
+
+  let screenKey = null;
+  let shownItems = new Set();
+
+  function screenHtml(a, ph) {
+    return '<div class="brand" style="--bc: ' + a.color + '"><i></i>' + a.name + '<span class="sub">' + a.sub + '</span></div>' +
+      '<div class="form" style="--bc: ' + a.color + '">' +
+      a.fields.map((f) => '<div class="' + cls('field', ph >= 1, 'on') + '"><span class="lab">' + f[0] + '</span><span class="val">' + f[1] + '</span><span class="tok">' + f[2] + '</span></div>').join('') +
+      '<div class="' + cls(cls('cta', ph >= 1, 'on'), ph === 2 || ph === 3, 'pressed') + '">' + (ph < 0 ? 'press play' : a.cta) + '</div>' +
+      '</div>';
+  }
+  function slideIn(scr) {
+    if (instant || !scr.classList) return;
+    scr.classList.remove('in');
+    void scr.offsetWidth;
+    scr.classList.add('in');
+  }
+  function renderScreen() {
+    const scr = el('dapp-screen');
+    if (cs.stage >= 3) {
+      const key = 'done:' + (cs.signed ? 1 : 0);
+      if (screenKey === key) return;
+      screenKey = key;
+      el('dapp-url').textContent = 'zodiac pilot';
+      scr.innerHTML = '<div class="done"><div class="big">' + (cs.signed ? 'Executed as one transaction' : 'Three interfaces, one transaction') + '</div><div class="sm">' + (cs.signed ? 'Swap, stake and supply landed together. If any call had failed, all three would have reverted.' : 'Nothing has moved yet. The batch is simulated, every call is inside the role, and it waits for one signature.') + '</div></div>';
+      slideIn(scr);
+      return;
+    }
+    const a = APPS[Math.max(cs.stage, 0)];
+    const ph = cs.stage < 0 ? -1 : cs.phase;
+    const key = 'app:' + Math.max(cs.stage, 0);
+    const canPatch = typeof scr.querySelectorAll === 'function' && typeof scr.querySelector === 'function';
+    if (screenKey !== key || !canPatch) {
+      screenKey = key;
+      el('dapp-url').textContent = a.url;
+      scr.innerHTML = screenHtml(a, ph);
+      slideIn(scr);
+      return;
+    }
+    scr.querySelectorAll('.field').forEach((f) => f.classList.toggle('on', ph >= 1));
+    const cta = scr.querySelector('.cta');
+    if (cta) {
+      cta.classList.toggle('on', ph >= 1);
+      cta.classList.toggle('pressed', ph === 2 || ph === 3);
+      cta.textContent = ph < 0 ? 'press play' : a.cta;
+    }
+  }
+
+  function cartRender() {
+    el('cart-stages').innerHTML = STAGE_NAMES.map((n, i) =>
+      '<button type="button" class="cart-stage' + (i < cs.stage || (i === 3 && cs.signed) ? ' donechip' : '') + '" data-cs="' + i + '" aria-current="' + (i === cs.stage) + '">' + (i + 1) + ' · ' + n + '</button>').join('');
+
+    // left: the interface (rebuilt only when the app changes; phases toggle classes in place)
+    renderScreen();
+
+    // right: the batch (an item animates only the first time it lands)
+    const items = [];
+    const displayed = [];
+    APPS.forEach((a, i) => {
+      const st = itemState(i);
+      if (st < 4) return;
+      displayed.push(i);
+      const chips = ['<span class="chip">recorded</span>'];
+      if (st >= 5) chips.push('<span class="chip sim">simulated ✓</span>');
+      if (st >= 6) chips.push('<span class="chip role">role ✓ · ' + a.role + '</span>');
+      items.push('<li class="' + cls('item', !shownItems.has(i), 'fresh') + '"><span class="n">' + (i + 1) + '</span><span><div class="what">' + a.item + '</div><div class="where">' + a.where + '</div></span><span class="chips">' + chips.join('') + '</span></li>');
+    });
+    shownItems = new Set(displayed);
+    el('cart-items').innerHTML = items.length ? items.join('') : '<li class="empty">' + (cs.stage < 0 ? 'The batch is empty. Every action Ana takes lands here first.' : 'Recording…') + '</li>';
+    el('cart-count').textContent = items.length ? items.length + (items.length === 1 ? ' item' : ' items') : 'empty';
+    el('cart-count').setAttribute('class', cls('badge', items.length > 0, 'has'));
+
+    const bal = Object.assign({}, START);
+    const delta = { USDC: 0, ETH: 0, wstETH: 0, aWstETH: 0 };
+    APPS.forEach((a, i) => {
+      if (itemState(i) < 5) return;
+      Object.keys(a.delta).forEach((k) => { bal[k] += a.delta[k]; delta[k] += a.delta[k]; });
+    });
+    el('cart-ledger').innerHTML =
+      '<div class="lab"><span>vault balances</span><span class="' + cls('mode', cs.signed, 'live') + '">' + (cs.signed ? 'onchain' : 'simulated · fork') + '</span></div>' +
+      LEDGER_ROWS.map(([k, label]) => {
+        const dec = k === 'USDC' ? 0 : 1;
+        const d = delta[k];
+        return '<div class="row"><span>' + label + '</span><span>' + num(bal[k], dec) + '</span><span class="' + cls('d', d < 0, 'neg') + '">' + (d ? (d > 0 ? '+' : '−') + num(Math.abs(d), dec) : '') + '</span></div>';
+      }).join('');
+
+    const ready = cs.stage >= 3;
+    el('cart-checkout').setAttribute('class', cls(cls('checkout', ready, 'on'), cs.signed, 'done'));
+    el('cart-checkout').textContent = cs.signed ? '1 signature · 3 calls · executed ✓' : ready ? 'Sign once' : 'Sign once · ' + items.length + ' of 3';
+  }
+
+  function flyChip() {
+    if (instant || typeof document.createElement !== 'function') return;
+    const body = el('cart-body');
+    const cta = body.querySelector('.dapp .cta');
+    const list = el('cart-items');
+    if (!cta || !cta.getBoundingClientRect) return;
+    const b = body.getBoundingClientRect(), c = cta.getBoundingClientRect(), l = list.getBoundingClientRect();
+    const chip = document.createElement('span');
+    chip.className = 'flychip';
+    chip.textContent = APPS[cs.stage].cta + ' → batch';
+    chip.style.left = (c.left - b.left + c.width / 2 - 50) + 'px';
+    chip.style.top = (c.top - b.top + 6) + 'px';
+    chip.style.setProperty('--dx', (l.left - b.left + 40 - (c.left - b.left + c.width / 2 - 50)) + 'px');
+    chip.style.setProperty('--dy', (l.top - b.top + 20 - (c.top - b.top + 6)) + 'px');
+    body.appendChild(chip);
+    setTimeout(() => { if (chip.parentNode) chip.parentNode.removeChild(chip); }, 700);
+  }
+
+  function cartSet(stage, phase, signed) {
+    const wasStage = cs.stage, wasPhase = cs.phase;
+    cs = { stage, phase, signed: !!signed };
+    cartRender();
+    if (stage === wasStage && phase === 3 && wasPhase < 3) flyChip();
+  }
+  function cartJump(i) {
+    if (i >= 3) { cartSet(3, 0, true); return; }
+    cartSet(i, 6, false);
+  }
+  function cartPlay() {
+    cartTimers.forEach(clearTimeout); cartTimers = [];
+    if (instant) { cartJump(3); return; }
+    el('cart-play').disabled = true;
+    APPS.forEach((a, i) => {
+      PHASE_AT.forEach((ms, ph) => cartTimers.push(setTimeout(() => cartSet(i, ph, false), i * STAGE_MS + ms)));
+    });
+    const tSign = APPS.length * STAGE_MS;
+    cartTimers.push(setTimeout(() => cartSet(3, 0, false), tSign));
+    cartTimers.push(setTimeout(() => cartSet(3, 0, true), tSign + 1100));
+    cartTimers.push(setTimeout(() => { el('cart-play').disabled = false; el('cart-play').textContent = 'replay'; }, tSign + 1300));
+  }
+
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest ? e.target.closest('.cart-stage') : null;
+    if (b) { cartTimers.forEach(clearTimeout); cartTimers = []; el('cart-play').disabled = false; cartJump(Number(b.dataset.cs)); }
+  });
+  el('cart-play').addEventListener('click', cartPlay);
+
+  cartRender();
+})();
+</script>
+</body>
+</html>

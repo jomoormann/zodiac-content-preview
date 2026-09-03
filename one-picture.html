@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Zodiac in One Picture</title>
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #081226;
+    --panel: #0b1a3d;
+    --card: #12244d;
+    --card-edge: #2b4472;
+    --ink: #eaf2fb;
+    --muted: #9db8d9;
+    --dim: #6292cf;
+    --brand: #469ced;
+    --brand-light: #b1d3f2;
+    --sand: #cea491;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0 24px 80px;
+  }
+  .page { max-width: 1080px; margin: 0 auto; }
+  a { color: var(--brand); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  a:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+
+  .eyebrow {
+    font-family: "JetBrains Mono", Menlo, monospace;
+    font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--dim);
+  }
+  header.doc { padding: 52px 0 8px; }
+  header.doc h1 {
+    font-family: "Schibsted Grotesk", Inter, sans-serif;
+    font-size: 40px; font-weight: 700; letter-spacing: -0.02em;
+    margin: 10px 0 12px; text-wrap: balance;
+  }
+  header.doc p { color: var(--muted); max-width: 62ch; margin: 0; }
+
+  figure { margin: 36px 0 12px; }
+  figure svg { width: 100%; height: auto; display: block; }
+  figcaption {
+    font-size: 13.5px; color: var(--dim); margin-top: 12px; max-width: 78ch;
+    line-height: 1.5;
+  }
+
+  h2 {
+    font-family: "Schibsted Grotesk", Inter, sans-serif;
+    font-size: 26px; font-weight: 600; letter-spacing: -0.01em;
+    margin: 56px 0 8px; text-wrap: balance;
+  }
+  .sectionlede { color: var(--muted); max-width: 66ch; margin: 0 0 24px; }
+
+  .teasers { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 760px) { .teasers { grid-template-columns: 1fr; } }
+  .teaser {
+    background: var(--panel); border: 1px solid var(--card-edge); border-radius: 12px;
+    padding: 22px 24px 20px; display: flex; flex-direction: column; gap: 8px;
+  }
+  .teaser .part {
+    font-family: "JetBrains Mono", Menlo, monospace;
+    font-size: 11.5px; letter-spacing: 0.14em; color: var(--brand);
+  }
+  .teaser h3 {
+    font-family: "Schibsted Grotesk", Inter, sans-serif;
+    font-size: 19px; font-weight: 600; margin: 0; line-height: 1.3; text-wrap: balance;
+  }
+  .teaser p { margin: 0; font-size: 14.5px; color: var(--muted); }
+  .teaser.proposed { border-style: dashed; }
+  .teaser .flag {
+    font-family: "JetBrains Mono", Menlo, monospace;
+    font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--sand); margin-top: auto; padding-top: 6px;
+  }
+
+  .notes {
+    background: var(--panel); border: 1px solid var(--card-edge); border-radius: 12px;
+    padding: 24px 28px; margin-top: 40px;
+  }
+  .notes h2 { margin: 0 0 12px; font-size: 20px; }
+  .notes ul { margin: 0; padding-left: 20px; color: var(--muted); font-size: 14.5px; }
+  .notes li { margin-bottom: 8px; }
+  .notes li::marker { color: var(--dim); }
+  .notes b { color: var(--ink); font-weight: 600; }
+  code {
+    font-family: "JetBrains Mono", Menlo, monospace; font-size: 12.5px;
+    background: var(--card); border: 1px solid var(--card-edge);
+    padding: 1px 6px; border-radius: 4px; color: var(--brand-light);
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="doc">
+  <span class="eyebrow">Blog series · Post 1 preview</span>
+  <h1>Zodiac in one picture</h1>
+  <p>The hero visual for the series opener, drawn in the site's own palette and type (ink, brand blues, sand, Schibsted Grotesk, JetBrains Mono), plus the five deep-dive teasers it sets up. The full post copy lives in <code>series-opener-blog-post.md</code>.</p>
+</header>
+
+<figure>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 680" role="img" aria-label="Zodiac architecture: owners, members, and agents act through Zodiac OS (App, Pilot, Constellations). Every routine call passes the Roles policy check, enforced onchain, before reaching the vault on your Safe. Calls outside policy revert. Policy changes require owner signatures.">
+    <defs>
+      <radialGradient id="bgGrad" cx="28%" cy="22%" r="95%">
+        <stop offset="0%" stop-color="#122450"/>
+        <stop offset="100%" stop-color="#0b1a3d"/>
+      </radialGradient>
+      <marker id="arrowBrand" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto">
+        <path d="M0 0 L8 4 L0 8 Z" fill="#469ced"/>
+      </marker>
+      <marker id="arrowLight" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto">
+        <path d="M0 0 L8 4 L0 8 Z" fill="#b1d3f2"/>
+      </marker>
+      <marker id="arrowSand" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto">
+        <path d="M0 0 L8 4 L0 8 Z" fill="#cea491"/>
+      </marker>
+      <filter id="glow" x="-60%" y="-30%" width="220%" height="160%">
+        <feGaussianBlur stdDeviation="8"/>
+      </filter>
+    </defs>
+    <rect x="0" y="0" width="1200" height="680" rx="24" fill="url(#bgGrad)"/>
+    <rect x="0.75" y="0.75" width="1198.5" height="678.5" rx="23" fill="none" stroke="#22375f" stroke-width="1.5"/>
+    <g fill="#b1d3f2">
+      <circle cx="350" cy="82" r="1.4" opacity="0.25"/>
+      <circle cx="520" cy="96" r="1.8" opacity="0.35"/>
+      <circle cx="700" cy="70" r="1.3" opacity="0.22"/>
+      <circle cx="762" cy="108" r="1.6" opacity="0.3"/>
+      <circle cx="880" cy="92" r="1.3" opacity="0.2"/>
+      <circle cx="40" cy="238" r="1.5" opacity="0.22"/>
+      <circle cx="34" cy="420" r="1.3" opacity="0.18"/>
+      <circle cx="1166" cy="300" r="1.5" opacity="0.25"/>
+      <circle cx="1172" cy="452" r="1.3" opacity="0.18"/>
+      <circle cx="300" cy="656" r="1.4" opacity="0.2"/>
+      <circle cx="600" cy="662" r="1.2" opacity="0.16"/>
+      <circle cx="60" cy="90" r="1.6" opacity="0.28"/>
+    </g>
+    <g stroke="#6292cf" stroke-width="1" opacity="0.35">
+      <line x1="962" y1="66" x2="1010" y2="52"/>
+      <line x1="1010" y1="52" x2="1054" y2="80"/>
+      <line x1="1054" y1="80" x2="1096" y2="58"/>
+      <line x1="1096" y1="58" x2="1136" y2="88"/>
+    </g>
+    <g fill="#b1d3f2">
+      <circle cx="962" cy="66" r="2.2" opacity="0.6"/>
+      <circle cx="1010" cy="52" r="1.8" opacity="0.5"/>
+      <circle cx="1054" cy="80" r="2.4" opacity="0.7"/>
+      <circle cx="1096" cy="58" r="1.7" opacity="0.5"/>
+      <circle cx="1136" cy="88" r="2" opacity="0.6"/>
+    </g>
+    <text x="64" y="72" font-family="'Schibsted Grotesk',Inter,system-ui,sans-serif" font-size="21" font-weight="700" letter-spacing="3" fill="#eaf2fb">ZODIAC<tspan dx="16" font-size="14" font-weight="400" letter-spacing="0" fill="#9db8d9">· the operating system for onchain organizations</tspan></text>
+    <g font-family="'JetBrains Mono',Menlo,monospace" font-size="12.5" letter-spacing="2" fill="#6292cf">
+      <text x="64" y="128">WHO ACTS</text>
+      <text x="384" y="128">WHERE THEY WORK</text>
+      <text x="784" y="128">WHERE IT IS ENFORCED</text>
+    </g>
+    <g>
+      <rect x="64" y="170" width="240" height="88" rx="10" fill="#12244d" stroke="#2b4472"/>
+      <text x="84" y="206" font-family="'Schibsted Grotesk',Inter,sans-serif" font-size="19" font-weight="600" fill="#eaf2fb">Owners</text>
+      <text x="84" y="232" font-family="Inter,system-ui,sans-serif" font-size="13" fill="#9db8d9">sign what matters</text>
+      <rect x="206" y="190" width="62" height="30" rx="15" fill="none" stroke="#b1d3f2"/>
+      <text x="237" y="210" text-anchor="middle" font-family="'JetBrains Mono',Menlo,monospace" font-size="13" fill="#b1d3f2">2 / 3</text>
+      <rect x="64" y="286" width="240" height="88" rx="10" fill="#12244d" stroke="#2b4472"/>
+      <text x="84" y="322" font-family="'Schibsted Grotesk',Inter,sans-serif" font-size="19" font-weight="600" fill="#eaf2fb">Members</text>
+      <text x="84" y="348" font-family="Inter,system-ui,sans-serif" font-size="13" fill="#9db8d9">ops · desk · payroll</text>
+      <g fill="#469ced">
+        <circle cx="226" cy="316" r="4.5"/>
+        <circle cx="244" cy="316" r="4.5"/>
+        <circle cx="262" cy="316" r="4.5"/>
+      </g>
+      <rect x="64" y="402" width="240" height="88" rx="10" fill="#12244d" stroke="#2b4472"/>
+      <text x="84" y="438" font-family="'Schibsted Grotesk',Inter,sans-serif" font-size="19" font-weight="600" fill="#eaf2fb">Agents</text>
+      <text x="84" y="464" font-family="Inter,system-ui,sans-serif" font-size="13" fill="#9db8d9">automation · AI</text>
+      <rect x="214" y="420" width="54" height="28" rx="6" fill="#0f2147" stroke="#2b4472"/>
+      <text x="241" y="439" text-anchor="middle" font-family="'JetBrains Mono',Menlo,monospace" font-size="12" fill="#9db8d9">24/7</text>
+    </g>
+    <rect x="384" y="170" width="320" height="320" rx="14" fill="#132a56" stroke="#35578f" stroke-width="1.5"/>
+    <text x="404" y="202" font-family="'Schibsted Grotesk',Inter,sans-serif" font-size="16.5" font-weight="700" letter-spacing="1" fill="#eaf2fb">ZODIAC OS</text>
+    <text x="404" y="222" font-family="Inter,system-ui,sans-serif" font-size="12.5" fill="#9db8d9">one surface for the whole organization</text>
+    <g>
+      <rect x="404" y="236" width="280" height="70" rx="8" fill="#0f2147" stroke="#2b4472"/>
+      <text x="424" y="264" font-family="'Schibsted Grotesk',Inter,sans-serif" font-size="15.5" font-weight="600" fill="#eaf2fb">App</text>
+      <text x="424" y="286" font-family="Inter,system-ui,sans-serif" font-size="12.5" fill="#9db8d9">operate vaults, roles, members</text>
+      <rect x="404" y="318" width="280" height="70" rx="8" fill="#0f2147" stroke="#2b4472"/>
+      <text x="424" y="346" font-family="'Schibsted Grotesk',Inter,sans-serif" font-size="15.5" font-weight="600" fill="#eaf2fb">Pilot</text>
+      <text x="424" y="368" font-family="Inter,system-ui,sans-serif" font-size="12.5" fill="#9db8d9">record, simulate, batch workflows</text>
+      <rect x="404" y="400" width="280" height="70" rx="8" fill="#0f2147" stroke="#2b4472"/>
+      <text x="424" y="428" font-family="'Schibsted Grotesk',Inter,sans-serif" font-size="15.5" font-weight="600" fill="#eaf2fb">Constellations</text>
+      <text x="424" y="450" font-family="Inter,system-ui,sans-serif" font-size="12.5" fill="#9db8d9">your organization as code</text>
+    </g>
+    <rect x="784" y="170" width="64" height="320" rx="10" fill="#469ced" opacity="0.3" filter="url(#glow)"/>
+    <rect x="784" y="170" width="64" height="320" rx="10" fill="#469ced" fill-opacity="0.12" stroke="#469ced" stroke-width="1.5"/>
+    <text transform="translate(822 330) rotate(-90)" text-anchor="middle" font-family="'JetBrains Mono',Menlo,monospace" font-size="12.5" letter-spacing="1.5" fill="#b1d3f2">ROLES · EVERY CALL CHECKED</text>
+    <rect x="848" y="170" width="288" height="320" rx="14" fill="#0e1f42" stroke="#35578f" stroke-width="1.5"/>
+    <text x="872" y="204" font-family="'Schibsted Grotesk',Inter,sans-serif" font-size="19" font-weight="600" fill="#eaf2fb">Vault</text>
+    <text x="1112" y="204" text-anchor="end" font-family="'JetBrains Mono',Menlo,monospace" font-size="12" fill="#9db8d9">your Safe</text>
+    <text x="872" y="228" font-family="Inter,system-ui,sans-serif" font-size="12.5" fill="#9db8d9">the account that holds the assets</text>
+    <line x1="872" y1="246" x2="1112" y2="246" stroke="#2b4472"/>
+    <text x="872" y="270" font-family="'JetBrains Mono',Menlo,monospace" font-size="11" letter-spacing="1.5" fill="#6292cf">ACTIVE POLICIES · CONTRACT STATE</text>
+    <g font-family="'JetBrains Mono',Menlo,monospace" font-size="12" fill="#b1d3f2">
+      <rect x="872" y="284" width="240" height="28" rx="6" fill="#122650" stroke="#2b4472"/>
+      <text x="884" y="303">swap ≤ 50,000 USDC / week</text>
+      <rect x="872" y="320" width="240" height="28" rx="6" fill="#122650" stroke="#2b4472"/>
+      <text x="884" y="339">targets: Aave + Lido only</text>
+      <rect x="872" y="356" width="240" height="28" rx="6" fill="#122650" stroke="#2b4472"/>
+      <text x="884" y="375">withdraw → vault only</text>
+      <rect x="872" y="392" width="240" height="28" rx="6" fill="#122650" stroke="#2b4472"/>
+      <text x="884" y="411">agent mandate expires Friday</text>
+    </g>
+    <text x="872" y="454" font-family="Inter,system-ui,sans-serif" font-size="12.5" fill="#9db8d9">changed only by owner signatures</text>
+    <rect x="784" y="506" width="352" height="38" rx="8" fill="#0d1c3e" stroke="#2b4472"/>
+    <text x="960" y="530" text-anchor="middle" font-family="'JetBrains Mono',Menlo,monospace" font-size="12" letter-spacing="1" fill="#6292cf">ETHEREUM + EVM CHAINS · ENFORCED HERE</text>
+    <path d="M 304 214 H 340 Q 352 214 352 202 V 160 Q 352 148 364 148 H 900 Q 912 148 912 158 V 164" fill="none" stroke="#b1d3f2" stroke-width="2" stroke-dasharray="7 5" marker-end="url(#arrowLight)"/>
+    <text x="640" y="140" text-anchor="middle" font-family="'JetBrains Mono',Menlo,monospace" font-size="13" fill="#b1d3f2">set roles &amp; budgets · quorum signs</text>
+    <path d="M 304 330 H 376" fill="none" stroke="#469ced" stroke-width="2.5" marker-end="url(#arrowBrand)"/>
+    <path d="M 304 446 H 376" fill="none" stroke="#469ced" stroke-width="2.5" marker-end="url(#arrowBrand)"/>
+    <path d="M 704 330 H 774" fill="none" stroke="#469ced" stroke-width="3.5" marker-end="url(#arrowBrand)"/>
+    <text x="740" y="314" text-anchor="middle" font-family="'JetBrains Mono',Menlo,monospace" font-size="13" fill="#469ced">execute</text>
+    <path d="M 850 330 H 862" fill="none" stroke="#469ced" stroke-width="3.5" marker-end="url(#arrowBrand)"/>
+    <path d="M 704 396 H 764" fill="none" stroke="#cea491" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#arrowSand)"/>
+    <g stroke="#cea491" stroke-width="2.5">
+      <line x1="772" y1="390" x2="784" y2="402"/>
+      <line x1="784" y1="390" x2="772" y2="402"/>
+    </g>
+    <path d="M 766 406 C 754 426, 736 432, 718 426" fill="none" stroke="#cea491" stroke-width="2" marker-end="url(#arrowSand)"/>
+    <text x="756" y="452" text-anchor="middle" font-family="'JetBrains Mono',Menlo,monospace" font-size="12" fill="#cea491">outside policy</text>
+    <text x="756" y="470" text-anchor="middle" font-family="'JetBrains Mono',Menlo,monospace" font-size="12" fill="#cea491">reverts</text>
+    <g font-family="'JetBrains Mono',Menlo,monospace" font-size="13" fill="#9db8d9">
+      <rect x="150" y="584" width="252" height="40" rx="20" fill="#0d1c3e" stroke="#2b4472"/>
+      <text x="276" y="609" text-anchor="middle">assets stay on your account</text>
+      <rect x="432" y="584" width="258" height="40" rx="20" fill="#0d1c3e" stroke="#2b4472"/>
+      <text x="561" y="609" text-anchor="middle">policies live on your account</text>
+      <rect x="720" y="584" width="330" height="40" rx="20" fill="#0d1c3e" stroke="#2b4472"/>
+      <text x="885" y="609" text-anchor="middle">enforcement by the chain, not a vendor</text>
+    </g>
+    <text x="1136" y="660" text-anchor="end" font-family="'JetBrains Mono',Menlo,monospace" font-size="12" fill="#6292cf">zodiac.eco</text>
+  </svg>
+  <figcaption>The mechanism in one read, left to right: owners, members, and agents (who acts) work through Zodiac OS (where they work), and every routine call passes the Roles check on the account itself before it reaches the vault (where it is enforced). Out-of-policy calls bounce. Owners' signatures are reserved for changing the policies, not for routine execution.</figcaption>
+</figure>
+
+<h2>The five deep dives it teases</h2>
+<p class="sectionlede">Each aspect gets its own post. Part 5 is a proposed addition to the original four; it targets the agent-builder audience the site already speaks to, and is easy to cut if the series should stay at four.</p>
+
+<div class="teasers">
+  <div class="teaser">
+    <span class="part">PART 2</span>
+    <h3>Routine actions on a fast lane</h3>
+    <p>Claims, rebalances, and payouts run in one transaction instead of a signing round: record a permission by demonstrating it, simulate it on a fork, batch the workflow. With real recorded flows from Aave and Morpho.</p>
+  </div>
+  <div class="teaser">
+    <span class="part">PART 3</span>
+    <h3>Controls anyone can verify, a vendor nobody needs</h3>
+    <p>The policy engine is contract state on your account, not a database on our servers. We read a live setup's permissions off a block explorer, then ask the exit question: what still works if Zodiac disappears?</p>
+  </div>
+  <div class="teaser">
+    <span class="part">PART 4</span>
+    <h3>Blast radius is a design decision</h3>
+    <p>Roles scope to contracts, functions, parameters, amounts, and destinations. What a leaked key can reach on Saturday is exactly what its role allowed on Friday: nothing else.</p>
+  </div>
+  <div class="teaser">
+    <span class="part">PART 5</span>
+    <h3>Your organization as code</h3>
+    <p>Vault, roles, members, and caps in a git repository: forked, reviewed like a pull request, signed by the account. Including what happened when an AI wrote our entire setup and still could not move a cent.</p>
+  </div>
+  <div class="teaser proposed">
+    <span class="part">PART 6</span>
+    <h3>Agents under mandate</h3>
+    <p>An agent will eventually try something outside its mandate. With budgets, expiries, and boundaries enforced by the account rather than by the agent's good behavior, trying is all it can do.</p>
+    <span class="flag">proposed addition · easy to cut</span>
+  </div>
+</div>
+
+<div class="notes">
+  <h2>Using the visual</h2>
+  <ul>
+    <li><b>In the post:</b> embed the SVG inline (file: <code>zodiac-overview-visual.svg</code>) so it inherits the site's real Schibsted Grotesk and JetBrains Mono; as a standalone file it falls back to system fonts.</li>
+    <li><b>On X and LinkedIn:</b> export a 2x PNG of the full panel for the opener thread. The account group alone (Roles gate + vault + revert bounce) crops into a strong standalone card for the short-form drip.</li>
+    <li><b>It scales down honestly:</b> at timeline size the three zone labels, the two lanes, and the bounce still read; the policy pills become texture, which is fine.</li>
+    <li><b>Accuracy notes for review:</b> policy examples are modeled on the demo org's real caps; "2/3" quorum and the Friday mandate are illustrative. Confirm the tool naming (App · Pilot · Constellations) matches how the team wants the product surface described.</li>
+  </ul>
+</div>
+
+</div>
+</body>
+</html>
