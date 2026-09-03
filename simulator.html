@@ -1263,9 +1263,9 @@
     setLbl('l-veto', cl && op, 'veto');
 
     // treasury
-    el('t-val').textContent = S.drained ? '$0 · drained' : S.leak ? '$' + fmt(45000000 - S.leak) : '$45,000,000';
+    el('t-val').textContent = S.drained ? '$0 left' : S.leak ? '$' + fmt(45000000 - S.leak) : '$45,000,000';
     el('n-treasury').setAttribute('class', 'node' + (S.drained ? ' drained' : S.won ? ' won' : ''));
-    el('t-note').textContent = S.drained ? 'emptied in this run' : S.leak ? 'one allowance leaked in this run' : '';
+    el('t-note').textContent = S.drained ? '$45,000,000 drained' : S.leak ? '$' + fmt(S.leak) + ' leaked' : '';
     el('sim-panel').setAttribute('class', 'sim' + (S.drained ? ' drainedfx' : S.leak ? ' leakfx' : ''));
     const inRun = S.view === 'run';
     el('con-status').textContent = S.busy ? 'running' : inRun ? 'done' : 'ready';
