@@ -120,19 +120,6 @@
   .con-back { font-family: 'JetBrains Mono', Menlo, monospace; font-size: 11.5px; color: var(--brand-light); background: none; border: 0; padding: 0; cursor: pointer; }
   .con-back:hover { text-decoration: underline; text-underline-offset: 2px; }
   .con-intro { font-size: 12.5px; color: var(--muted); margin: 0 0 12px; line-height: 1.45; }
-  .mode-switch { display: flex; gap: 6px; margin: 0 0 12px; }
-  .mode { flex: 1; font-family: 'JetBrains Mono', Menlo, monospace; font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; border-radius: 999px; padding: 6px 10px; background: none; border: 1px solid #22375f; color: var(--dim); cursor: pointer; }
-  .mode.on { border-color: var(--brand); color: var(--ink); background: rgba(70, 156, 237, 0.14); }
-  #code-view { display: flex; flex-direction: column; flex: 1; min-height: 0; }
-  .file-tabs { display: flex; flex-wrap: wrap; gap: 5px; margin: 0 0 10px; }
-  .ftab { font-family: 'JetBrains Mono', Menlo, monospace; font-size: 10px; border-radius: 999px; padding: 3px 9px; border: 1px solid #22375f; color: var(--dim); background: none; cursor: pointer; }
-  .ftab.on { border-color: var(--brand); color: var(--ink); background: rgba(70, 156, 237, 0.14); }
-  .code { flex: 1; min-height: 0; overflow: auto; margin: 0; background: #070f22; border: 1px solid #16274a; border-radius: 12px; padding: 12px; font-family: 'JetBrains Mono', Menlo, monospace; font-size: 11px; line-height: 1.55; color: var(--brand-light); white-space: pre; }
-  .code .cm { color: var(--dim); }
-  .code .wn { color: var(--sand); }
-  .code-foot { display: flex; align-items: center; gap: 14px; margin-top: 10px; }
-  .code-foot .reset { margin-left: 0; }
-  .code-note { font-family: 'JetBrains Mono', Menlo, monospace; font-size: 10px; color: var(--dim); flex: 1; line-height: 1.4; }
   .abtn .lbl { flex: 1 1 auto; }
   .abtn .why { font-size: 9.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--dim); white-space: nowrap; }
   .abtn .tag { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--auth); border: 1px solid #2e6b4f; border-radius: 999px; padding: 1px 7px; white-space: nowrap; }
@@ -561,12 +548,8 @@
     <button type="button" class="reset" id="b-reset">start over</button>
   </div>
 </div>
-<aside class="sim atk" id="console" aria-label="Attack simulator and constellation">
-  <div class="mode-switch" role="tablist" aria-label="Panel mode">
-    <button type="button" class="mode on" id="mode-attack" data-mode="attack">Attacks</button>
-    <button type="button" class="mode" id="mode-code" data-mode="code">Constellation</button>
-  </div>
-  <div class="con-head" id="atk-head">
+<aside class="sim atk" id="console" aria-label="Attack simulator">
+  <div class="con-head">
     <span class="eyebrow" id="con-eyebrow">Attack simulator</span>
     <button type="button" class="con-back" id="con-back" hidden>‹ attack vectors</button>
     <span class="con-status" id="con-status">ready</span>
@@ -589,16 +572,6 @@
       <div id="atk-hint"></div>
     </div>
     <div class="con-foot"><button type="button" class="reset" id="atk-share" hidden>share this run</button><button type="button" class="reset" id="atk-again" hidden>run again</button></div>
-  </div>
-  <div id="code-view" hidden>
-    <div class="con-head"><span class="eyebrow">Constellation · generated live</span><span class="con-status" id="code-status"></span></div>
-    <div class="file-tabs" id="file-tabs"></div>
-    <pre class="code" id="code-out" tabindex="0"></pre>
-    <div class="code-foot">
-      <span class="code-note" id="code-note"></span>
-      <button type="button" class="reset" id="code-copy">copy file</button>
-      <button type="button" class="reset" id="code-zip">download .zip</button>
-    </div>
   </div>
 </aside>
 </div>
@@ -637,14 +610,12 @@
     <li>The Zodiac wordmark (brand SVG paths, no mark) fades into the top-left of the graph when the first Zodiac component is built and leaves on start over.</li>
     <li>"Lazarus has infiltrated your organization" replaces the plain owner-key-stolen vector (SEAL: DPRK IT workers section, DPRK playbook): same one-key mechanics, infiltrator narrative, multisig ending points at the complacency vector. All five vectors stay visible; ones that do not apply are greyed with the reason on the tile ("Member key stolen" needs a policy, "Zodiac App hacked" needs a Zodiac component). Tile names follow the setup (owner / quorum / operator admins). The tile that attacks the current default flow carries a "default flow" tag: the malicious-signature vector for a single key and for a plain multisig (complacency: the second signer signs because a signature is already there), "Member key stolen" once roles exist.</li>
     <li>Third verdict AT RISK (sand): the vault stays full but is "one careless signature away"; used by the Lazarus run whenever a quorum can execute without a council veto behind it (plain multisig, or operator without council). Only the timelock plus council turns it green.</li>
-    <li>CONSTELLATION MODE (proof of concept): the right card's second tab generates the repo files for the structure on the left, live, in the shapes of github.com/jomoormann/zodiac-sim-org-constellation (Roles v2 + current SDK: safes, Roles modifier, one folder per policy, allowances, placeholder members, README). v3 settings and the Delay appear as comments, risky builder choices (open withdrawals, no payroll whitelist) as WARNING lines. Copy per file; zip download via JSZip works on the hosted page, not inside the artifact sandbox. Hidden in the Part 1 embed.</li>
     <li>Sharing: the bar under the cards and "share this run" in the console. X intent text follows the last outcome ($0 / drained / payroll leak), LinkedIn takes the URL only (its card comes from the host page's OG tags), copy link uses the clipboard API. Deep link = page URL + #simulator (also ?simulator), which lands on the cards, not the headline.</li>
   </ul>
 </details>
 
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script>
 (function () {
   const el = (id) => document.getElementById(id);
@@ -685,7 +656,7 @@
     S = {
       multisig: false, deposits: false, ben: false, ext: false, morpho: false, lido: false, payroll: false, teamwallets: false, rebalance: false, leak: 0,
       operator: false, council: false,
-      log: [], verdict: null, tone: null, drained: false, won: false, busy: false, view: 'list', atk: null, stale: false, exposed: false, mode: 'attack', file: 0,
+      log: [], verdict: null, tone: null, drained: false, won: false, busy: false, view: 'list', atk: null, stale: false, exposed: false,
       p: {
         deposits: { amount: 100000, usd: true, vaultOnly: true, expiry: 'none', rate: 'none' },
         payroll: { amount: 30000, rate: 'monthly' },
@@ -1222,167 +1193,6 @@
     setTimeout(() => sh.setAttribute('class', 'share'), 1300);
   }
 
-
-  /* ===== constellation generator (proof of concept) ===== */
-  const ADDR = (tag, i) => '"0x0000000000000000000000000000000000000' + tag + '0' + i + '"';
-  function genFiles() {
-    const p = S.p, dur = p.timelock.dur, ms = S.multisig, op = S.operator, cl = S.council;
-    const dep = S.deposits, pay = S.payroll, reb = S.rebalance, wl = S.teamwallets, anyRole = dep || pay || reb;
-    const files = [];
-    if (!ms) {
-      files.push({ path: 'README.md', body: '# Nothing to generate yet\n\nA single key is not an account, so there is no constellation to write.\nUpgrade the key to a multisig in the builder and this panel fills up as you build.\n' });
-      return files;
-    }
-    // members.ts
-    const mem = ['// Placeholder member addresses. Replace with real signer addresses before pushing.', '// All-lowercase hex is accepted; these are clearly fake, non-colliding values.', ''];
-    if (op) { mem.push('// Operator Vault admins (2/3)'); for (let i = 1; i <= 3; i++) mem.push('export const OPERATOR_ADMIN_' + i + ' = ' + ADDR('a', i) + ';'); }
-    else { mem.push('// Treasury owners (2/3)'); for (let i = 1; i <= 3; i++) mem.push('export const OWNER_' + i + ' = ' + ADDR('a', i) + ';'); }
-    if (cl) { mem.push('', '// Security Council (4/7)'); for (let i = 1; i <= 7; i++) mem.push('export const COUNCIL_' + i + ' = ' + ADDR('c', i) + ';'); }
-    if (anyRole) mem.push('', '// Policy members');
-    if (dep) { mem.push('export const ANA = ' + ADDR('e', 1) + '; // operations'); if (S.ben) mem.push('export const BEN = ' + ADDR('e', 2) + '; // trading desk'); if (S.ext) mem.push('export const EXTERNAL_ADVISOR = ' + ADDR('e', 3) + '; // outside the org, inside the rules'); }
-    if (pay) mem.push('export const MIA = ' + ADDR('e', 4) + '; // people ops');
-    if (reb) mem.push('export const REBALANCER_AGENT = ' + ADDR('e', 5) + '; // automation key');
-    if (pay && wl) { mem.push('', '// Payroll recipients'); for (let i = 1; i <= 3; i++) mem.push('export const TEAM_WALLET_' + i + ' = ' + ADDR('f', i) + ';'); }
-    files.push({ path: 'constellation/members.ts', body: mem.join('\n') + '\n' });
-    files.push({ path: 'constellation/context.ts', body: '// Single constellation instance shared by index.ts and the role files.\nexport const eth = constellation({\n  workspace: "Default workspace",\n  label: "My Org",\n  chain: 1, // ethereum mainnet\n});\n' });
-
-    // index.ts
-    const ix = ['import { eth } from "./context";'];
-    const roleNames = [dep && 'deposits', pay && 'payroll', reb && 'rebalance'].filter(Boolean);
-    const allowNames = [dep && 'deposits_usdc_weekly', pay && 'payroll_usdc_monthly'].filter(Boolean);
-    if (roleNames.length) ix.push('import { ' + roleNames.join(', ') + ' } from "./roles";');
-    if (allowNames.length) ix.push('import { ' + allowNames.join(', ') + ' } from "./allowances";');
-    const govImports = op ? ['OPERATOR_ADMIN_1', 'OPERATOR_ADMIN_2', 'OPERATOR_ADMIN_3'] : ['OWNER_1', 'OWNER_2', 'OWNER_3'];
-    const clImports = cl ? [1, 2, 3, 4, 5, 6, 7].map((i) => 'COUNCIL_' + i) : [];
-    ix.push('import { ' + govImports.concat(clImports).join(', ') + ' } from "./members";', '');
-    ix.push('// Generated by the Zodiac Simulator: the structure you built, as code.', '// Roles v2 and the current constellation SDK. Settings tagged v3 in the builder appear as comments.', '');
-    if (op) ix.push('// Governance: the admins sign from here, not from the treasury itself.', 'export const operatorVault = eth.safe["Operator Vault"]({', '  nonce: 0n,', '  threshold: 2,', '  owners: [OPERATOR_ADMIN_1, OPERATOR_ADMIN_2, OPERATOR_ADMIN_3],', '});', '');
-    if (cl) ix.push("// The guardian, 4-of-7. As the treasury's sole owner it holds both powers from the builder:", '// veto (sign a treasury tx calling setTxNonce on the Delay) and exit-and-withdraw-all (plain owner transactions).', 'export const securityCouncil = eth.safe["Security Council"]({', '  nonce: 0n,', '  threshold: 4,', '  owners: [' + clImports.join(', ') + '],', '});', '');
-    let owners, threshold, note;
-    if (cl) { owners = '[securityCouncil]'; threshold = 1; note = '// The Security Council is the 1/1 owner. The Operator Vault has no direct path and acts only through the Delay queue.'; }
-    else if (op) { owners = '[operatorVault]'; threshold = 1; note = '// The Operator Vault holds the owner seat until a Security Council takes it. Add the council in the builder to get a veto.'; }
-    else { owners = '[OWNER_1, OWNER_2, OWNER_3]'; threshold = 2; note = '// A plain 2-of-3 multisig: the owners govern directly, instantly. No queue, no veto.'; }
-    ix.push(note, 'export const treasury = eth.safe["Treasury"]({', '  nonce: 0n,', '  threshold: ' + threshold + ',', '  owners: ' + owners + ',', '  vault: true,', '});', '');
-    if (anyRole) {
-      ix.push('// One Roles Modifier on the treasury. owner = treasury: policy changes execute as the treasury itself,', '// which the admins reach ' + (op ? 'only through the Delay queue' : 'directly') + (cl ? ' and the council reaches instantly as owner.' : '.'));
-      ix.push('export const treasuryRoles = eth.roles["Treasury Roles"]({', '  nonce: 0n,', '  owner: treasury,', '  avatar: treasury,', '  target: treasury,', '  roles: {');
-      roleNames.forEach((r) => ix.push('    ' + r + ','));
-      ix.push('  },');
-      if (allowNames.length) { ix.push('  allowances: {'); allowNames.forEach((a) => ix.push('    ' + a + ',')); ix.push('  },'); }
-      ix.push('});', '');
-    }
-    if (op) ix.push('// -- The timelock ------------------------------------------------------------', '// Enable a Delay Modifier on the treasury with the Operator Vault as its module. Every operator', '// action then queues for the cooldown' + (cl ? ', and the council vetoes by calling setTxNonce on the Delay.' : '. Add a council to hold a veto.'), '// The npm constellation SDK cannot declare a Delay node yet, so this stays a manual step:', '//', '//   export const treasuryDelay = eth.delay["Treasury Delay"]({', '//     nonce: 0n,', '//     owner: treasury,        // never the operator: the owner can change the cooldown', '//     avatar: treasury,', '//     target: treasury,', '//     cooldown: ' + (dur * 3600) + 'n,      // ' + dur + 'h, as set in the builder', '//     expiration: 604800n,', '//     modules: [operatorVault],', '//   });', '');
-    files.push({ path: 'constellation/index.ts', body: ix.join('\n') + '\n' });
-
-    if (anyRole) files.push({ path: 'constellation/roles/index.ts', body: roleNames.map((r) => 'export * as ' + r + ' from "./' + r + '";').join('\n') + '\n' });
-    const roleIndex = 'export { default as members } from "./members";\nexport { default as permissions } from "./permissions";\n';
-    if (dep) {
-      const d = p.deposits;
-      const who = ['ANA'].concat(S.ben ? ['BEN'] : []).concat(S.ext ? ['EXTERNAL_ADVISOR'] : []);
-      files.push({ path: 'constellation/roles/deposits/index.ts', body: roleIndex });
-      files.push({ path: 'constellation/roles/deposits/members.ts', body: 'import { ' + who.join(', ') + ' } from "../../members";\n\nexport default [' + who.join(', ') + '] satisfies Members;\n' });
-      const perm = ['import config from "../../../zodiac.config";', 'import { deposits_usdc_weekly } from "../../allowances";', '', 'const POOL = config.contracts.eth.aave_v3.pool;', 'const USDC = config.contracts.eth.usdc;', ''];
-      if (d.usd) perm.push('// v3: USD-priced budget across tokens. v2 meters per token, so this allowance is USDC only.');
-      if (d.expiry !== 'none') perm.push('// v3: membership expiry (' + (d.expiry === 'friday' ? 'ends Friday' : 'ends in 30 days') + '). v2 has no expiry; revoke the role instead.');
-      if (d.rate !== 'none') perm.push('// v3: rate limit (max 12 calls per week). Not expressible in v2.');
-      perm.push('export default [', '  allow.eth.usdc.approve(POOL),', '  allow.eth.aave_v3.pool.supply(', '    USDC,', '    c.withinAllowance(deposits_usdc_weekly.key),', '    c.avatar,', '  ),');
-      if (d.vaultOnly) perm.push('  allow.eth.aave_v3.pool.withdraw(USDC, undefined, c.avatar),');
-      else perm.push('  // WARNING: withdrawals are not pinned to the vault. You opened them in the builder; a stolen key can withdraw elsewhere.', '  allow.eth.aave_v3.pool.withdraw(USDC),');
-      if (S.morpho) perm.push('  // TODO: Morpho. Add the defi-kit preset for the chosen vault, or hand-write the permission.');
-      if (S.lido) perm.push('  // TODO: Lido. Add the defi-kit staking preset (stETH / wstETH).');
-      perm.push('] satisfies Permissions;');
-      files.push({ path: 'constellation/roles/deposits/permissions.ts', body: perm.join('\n') + '\n' });
-    }
-    if (pay) {
-      files.push({ path: 'constellation/roles/payroll/index.ts', body: roleIndex });
-      files.push({ path: 'constellation/roles/payroll/members.ts', body: 'import { MIA } from "../../members";\n\nexport default [MIA] satisfies Members;\n' });
-      const perm = [];
-      if (wl) perm.push('import { TEAM_WALLET_1, TEAM_WALLET_2, TEAM_WALLET_3 } from "../../members";');
-      perm.push('import { payroll_usdc_monthly } from "../../allowances";', '');
-      perm.push('// v3: rate limit (' + (p.payroll.rate === 'monthly' ? 'one run per month' : 'one run per week') + '). v2 meters the amount only.');
-      perm.push('export default [');
-      if (wl) perm.push('  allow.eth.usdc.transfer(', '    c.or(TEAM_WALLET_1, TEAM_WALLET_2, TEAM_WALLET_3),', '    c.withinAllowance(payroll_usdc_monthly.key),', '  ),');
-      else perm.push('  // WARNING: any recipient. Team wallets are not selected in the builder, so a stolen key can send one allowance anywhere.', '  allow.eth.usdc.transfer(undefined, c.withinAllowance(payroll_usdc_monthly.key)),');
-      perm.push('] satisfies Permissions;');
-      files.push({ path: 'constellation/roles/payroll/permissions.ts', body: perm.join('\n') + '\n' });
-    }
-    if (reb) {
-      const r = p.rebalance;
-      files.push({ path: 'constellation/roles/rebalance/index.ts', body: roleIndex });
-      files.push({ path: 'constellation/roles/rebalance/members.ts', body: 'import { REBALANCER_AGENT } from "../../members";\n\nexport default [REBALANCER_AGENT] satisfies Members;\n' });
-      const perm = ['import { allow as allowAction } from "defi-kit/eth";', 'import config from "../../../zodiac.config";', ''];
-      perm.push('// Budget $' + fmt(r.budget) + ' / week: a defi-kit preset cannot be metered in v2. Hand-write the swap with c.withinAllowance to meter it.');
-      perm.push('// v3: slippage bound (within ' + r.slip + '% of the oracle price, WithinRatio).');
-      if (r.expiry !== 'none') perm.push('// v3: session expiry (' + (r.expiry === 'friday' ? 'ends Friday' : 'ends in 30 days') + '). v2 has no expiry; revoke the role instead.');
-      if (!r.vaultOnly) perm.push('// Note: "proceeds unrestricted" from the builder has no equivalent here. The preset pins the receiver to the vault.');
-      perm.push('export default [', '  allowAction.cowswap.swap({', '    sell: ["ETH", config.contracts.eth.usdc],', '    buy: ["ETH", config.contracts.eth.usdc],', '  }),', '] satisfies Permissions;');
-      files.push({ path: 'constellation/roles/rebalance/permissions.ts', body: perm.join('\n') + '\n' });
-    }
-    if (allowNames.length) {
-      const al = ['import { encodeKey } from "zodiac-roles-sdk";', '', 'const WEEK = 60n * 60n * 24n * 7n;', 'const MONTH = 60n * 60n * 24n * 30n;', 'const USDC_DECIMALS = 6n;', ''];
-      if (dep) al.push('const DEPOSITS_USDC_WEEKLY = ' + p.deposits.amount + 'n * 10n ** USDC_DECIMALS;', 'export const deposits_usdc_weekly = {', '  key: encodeKey("deposits_usdc_weekly"),', '  refill: DEPOSITS_USDC_WEEKLY,', '  maxRefill: DEPOSITS_USDC_WEEKLY,', '  period: WEEK,', '  balance: DEPOSITS_USDC_WEEKLY,', '  timestamp: 0n,', '};', '');
-      if (pay) al.push('const PAYROLL_USDC_MONTHLY = ' + p.payroll.amount + 'n * 10n ** USDC_DECIMALS;', 'export const payroll_usdc_monthly = {', '  key: encodeKey("payroll_usdc_monthly"),', '  refill: PAYROLL_USDC_MONTHLY,', '  maxRefill: PAYROLL_USDC_MONTHLY,', '  period: MONTH,', '  balance: PAYROLL_USDC_MONTHLY,', '  timestamp: 0n,', '};', '');
-      files.push({ path: 'constellation/allowances/index.ts', body: al.join('\n') });
-    }
-    if (anyRole) files.push({ path: 'zodiac.config.ts', body: 'import { defineConfig } from "@zodiac-os/sdk/cli/config";\n\nexport default defineConfig({\n  contracts: {\n    eth: {\n      usdc: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",\n      aave_v3: {\n        // Aave v3 Core Pool on mainnet\n        pool: "0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2",\n      },\n    },\n  },\n});\n' });
-    const rd = ['# My Org (generated by the Zodiac Simulator)', '', 'The structure from the builder, as a constellation: ' + (1 + (op ? 1 : 0) + (cl ? 1 : 0)) + ' safe' + ((op || cl) ? 's' : '') + (anyRole ? ', one Roles Modifier, ' + roleNames.length + ' polic' + (roleNames.length === 1 ? 'y' : 'ies') : '') + '.', 'Roles v2 and the current constellation SDK, so everything here is deployable today. Settings the builder tags v3 appear as comments.', '', '## Before you push', '', '- Replace every placeholder address in `constellation/members.ts` with a real signer.', '- Review each `permissions.ts`; lines marked WARNING mirror risky choices made in the builder.'];
-    if (op) rd.push('- Wire the timelock by hand (see the comment block in `constellation/index.ts`): the npm SDK cannot declare a Delay node yet.');
-    rd.push('- Start from the template: https://github.com/gnosisguild/zodiac-constellation-template, then `bun install` and `bun push` opens the diff for review in the Zodiac App. Nothing deploys until your owners sign.', '', 'Worked example with the same shape: https://github.com/jomoormann/zodiac-sim-org-constellation', '');
-    files.push({ path: 'README.md', body: rd.join('\n') });
-    return files;
-  }
-
-  let genCache = [];
-  const escHtml = (t) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  function highlight(src) {
-    return src.split('\n').map((line) => {
-      const e = escHtml(line);
-      if (/^\s*\/\//.test(line)) return '<span class="' + (/WARNING|TODO/.test(line) ? 'wn' : 'cm') + '">' + e + '</span>';
-      return e;
-    }).join('\n');
-  }
-  function renderCode() {
-    genCache = genFiles();
-    if (S.file >= genCache.length) S.file = 0;
-    el('file-tabs').innerHTML = genCache.map((f, i) => '<button type="button" class="ftab' + (i === S.file ? ' on' : '') + '" data-file="' + i + '">' + f.path.replace('constellation/', '') + '</button>').join('');
-    el('code-out').innerHTML = highlight(genCache[S.file].body);
-    el('code-status').textContent = S.multisig ? genCache.length + ' files' : 'nothing yet';
-    el('code-note').textContent = S.multisig ? 'Roles v2 and the current SDK. Every build or edit on the left rewrites these files.' : 'Upgrade the key to a multisig to start a constellation.';
-  }
-  function copyFile() {
-    const b = el('code-copy'), f = genCache[S.file];
-    if (!f) return;
-    const done = () => { b.textContent = 'copied ✓'; setTimeout(() => { b.textContent = 'copy file'; }, 1600); };
-    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(f.body).then(done, done); else done();
-  }
-  // Inside the claude.ai artifact viewer, files are handed over through the downloads capability
-  // (text formats only, so a markdown bundle). On a normal host the button builds a zip.
-  let viewerDownloads = null;
-  if (typeof window !== 'undefined' && window.claude && typeof window.claude.use === 'function') {
-    window.claude.use('downloads').then((d) => { viewerDownloads = d; if (d) el('code-zip').textContent = 'download bundle (.md)'; }, () => {});
-  }
-  function bundleMarkdown() {
-    return '# My Org constellation (generated by the Zodiac Simulator)\n\n' + genFiles().map((f) => '## ' + f.path + '\n\n```' + (f.path.endsWith('.md') ? 'md' : 'ts') + '\n' + f.body + '```\n').join('\n');
-  }
-  function downloadZip() {
-    const b = el('code-zip');
-    const label = b.textContent;
-    const flash = (t) => { b.textContent = t; setTimeout(() => { b.textContent = label; }, 2000); };
-    if (viewerDownloads) {
-      viewerDownloads.save({ filename: 'my-org-constellation.md', data: bundleMarkdown() }).then(() => flash('saved ✓'), (e) => flash(e && e.code === 'declined' ? 'cancelled' : 'not available here'));
-      return;
-    }
-    if (typeof window === 'undefined' || !window.JSZip) { flash('zip unavailable here'); return; }
-    const zip = new window.JSZip();
-    genFiles().forEach((f) => zip.file('my-org-constellation/' + f.path, f.body));
-    zip.generateAsync({ type: 'blob' }).then((blob) => {
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob); a.download = 'my-org-constellation.zip';
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-    });
-  }
-
   /* ===== render ===== */
   const NAMES = { ben: 'Ben', ext: 'External', morpho: 'Morpho', lido: 'Lido' };
   function setNode(key, on, pop, extra) {
@@ -1489,14 +1299,8 @@
     const inRun = S.view === 'run';
     el('con-status').textContent = S.busy ? 'running' : inRun ? 'done' : 'ready';
     el('con-status').setAttribute('class', 'con-status' + (S.busy ? ' busy' : ''));
-    const codeMode = S.mode === 'code';
-    el('atk-head').hidden = codeMode;
-    el('atk-list').hidden = codeMode || inRun;
-    el('atk-run').hidden = codeMode || !inRun;
-    el('code-view').hidden = !codeMode;
-    el('mode-attack').setAttribute('class', 'mode' + (codeMode ? '' : ' on'));
-    el('mode-code').setAttribute('class', 'mode' + (codeMode ? ' on' : ''));
-    if (codeMode) renderCode();
+    el('atk-list').hidden = inRun;
+    el('atk-run').hidden = !inRun;
     el('con-eyebrow').hidden = inRun;
     el('con-back').hidden = !inRun;
     el('atk-again').hidden = !inRun || S.busy;
@@ -1580,14 +1384,6 @@
   ['frontend', 'member', 'owner1', 'ownerN', 'app'].forEach((k2) => el('atk-' + k2).addEventListener('click', () => runAttack(k2)));
   el('b-reset').addEventListener('click', reset);
   el('con-back').addEventListener('click', backToList);
-  el('mode-attack').addEventListener('click', () => { S.mode = 'attack'; render(); });
-  el('mode-code').addEventListener('click', () => { S.mode = 'code'; render(); });
-  el('code-copy').addEventListener('click', copyFile);
-  el('code-zip').addEventListener('click', downloadZip);
-  el('file-tabs').addEventListener('click', (e) => {
-    const t = e.target.closest ? e.target.closest('.ftab') : null;
-    if (t) { S.file = Number(t.dataset.file); renderCode(); }
-  });
   el('atk-again').addEventListener('click', () => { if (S.atk) runAttack(S.atk); });
   el('atk-share').addEventListener('click', shareRun);
   el('share-copy').addEventListener('click', copyLink);
